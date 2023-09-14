@@ -2,7 +2,7 @@
 
 int main(){
 
-    // Damo check - 
+    // Damo check - Check
 
     // Aarush check - Check
 
