@@ -1,10 +1,27 @@
-#include <iostream>
+#include <SFML/Graphics.hpp>
 
-int main(){
+#include "Game.h"
 
-    // Damo check - Check
+Game game("Test");
 
-    // Aarush check - Check
+int main()
+{
+    sf::Clock clock;
 
-    return 0;
+	//Main game loop
+	while (game.getCurGameState() != Game::GameState::not_running)
+	{
+		float nextFrameStart = (float)clock.getElapsedTime().asMilliseconds() + (1000.0f / 60.0f);
+
+		game.handleEvents();
+		game.update();
+		game.render();
+
+		while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);
+	}
+
+	//Cleans game after it has stopped running
+	game.clean();
+
+	return 0;
 }
