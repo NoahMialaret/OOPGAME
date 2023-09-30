@@ -2,9 +2,9 @@
 
 # Makes an executable
 game: main.cpp Game.cpp
-	@g++ -std=c++20 main.cpp Game.cpp -o OOPGame -lsfml-graphics -lsfml-window -lsfml-system
+	@g++ -std=c++20 main.cpp Game.cpp Entity.cpp -o OOPGame -lsfml-graphics -lsfml-window -lsfml-system
 
 # Makes and runs an executable
 game_run: main.cpp Game.cpp
-	@g++ -std=c++20 main.cpp Game.cpp -o OOPGame -lsfml-graphics -lsfml-window -lsfml-system
+	@make game
 	@./OOPGame
