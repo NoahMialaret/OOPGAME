@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "Entity.h"
+#include "Player.h"
 
 //Game object handles most of the game proccesses and is responsible for updating and rendering
 class Game {
@@ -41,8 +42,7 @@ private:
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
 	//Game Objects -----------------------------------------------------
-
-	Entity player = Entity("TestCharacter.png", game_scale);
+	Player player = Player("TestCharacter.png", game_scale);
 
 public:
 	Game() = delete;
