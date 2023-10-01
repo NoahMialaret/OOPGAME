@@ -19,12 +19,19 @@ Game::Game(const char* title) {
 	test_mouse.setTexture(mouse_tex, true);
 	test_mouse.setScale(sf::Vector2f(game_scale, game_scale));
 
+	if (!tile_tex.loadFromFile("art/TestTile.png")) {
+		std::cout << "Texture could not be loaded!" << std::endl;
+		return;
+	}
+
 	std::cout << "Enabling standard play." << std::endl;
 	cur_game_state = GameState::standard_play;
 
 	window.setKeyRepeatEnabled(false);
 
 	window.setMouseCursorVisible(false);
+
+	tile = Tile(1, game_scale, sprite_dimensions, sf::Vector2f(10.0f,10.0f), tile_tex);
 }
 
 void Game::handleEvents() {
@@ -155,6 +162,8 @@ void Game::render() {
 
 	window.draw(test_player);
 	window.draw(test_mouse);
+
+	tile.render(&window);
 
 	window.display();	
 }
