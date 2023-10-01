@@ -17,10 +17,11 @@ Game::Game(const char* title) {
 
 	std::cout << "Enabling standard play." << std::endl;
 	cur_game_state = GameState::standard_play;
-
+  
+	level = std::make_unique<Level>(game_scale, sprite_dimensions);
+  
 	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(100.0f,10.0f));
-	for (int i = 0; i < 3; i++)
-	{
+	for (int i = 0; i < 3; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale, window.getSize()));
 	}
 	npc = new NPC("art/TestNPC.png", game_scale, sf::Vector2f(200.0f, 10.0f), "Shopkeeper");
@@ -106,6 +107,8 @@ void Game::update() {
 void Game::render() {
 	window.clear();
 
+	level.get()->render(&window);
+  
 	for (auto& i : enemies) {
 		i->render(&window);
 	}

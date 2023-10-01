@@ -3,6 +3,9 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Level.h"
+#include "Tile.h"
+
 #include <algorithm>
 #include <iostream>
 #include <memory>
@@ -44,7 +47,9 @@ private:
 	float game_scale = 4.0f;			// The scale which the game is rendered as
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
-	//Game Objects -----------------------------------------------------
+	//Game Objects ----------------------------------------------------- 
+	std::unique_ptr<Level> level = nullptr;
+  
 	Player* player;
 	std::vector<Enemy*> enemies;
 	NPC* npc;
