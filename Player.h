@@ -10,8 +10,6 @@
 
 class Player : public Entity {
 protected:
-	sf::Vector2f velocity = sf::Vector2f(0.0f, 0.0f); // Vector representing the players velocity
-
 	bool can_increase_jump_velocity = false; // Determines whether holding the jump button will continue adding height (can't think of a better name...)
 	bool jump_hold = false; // Shows whether the jump button has been held after performing a jump 
 

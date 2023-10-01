@@ -10,6 +10,7 @@
 
 #include "Enemy.h"
 #include "Entity.h"
+#include "NPC.h"
 #include "Player.h"
 
 //Game object handles most of the game proccesses and is responsible for updating and rendering
@@ -46,6 +47,7 @@ private:
 	//Game Objects -----------------------------------------------------
 	Player* player;
 	std::vector<Enemy*> enemies;
+	NPC* npc;
 
 public:
 	Game() = delete;

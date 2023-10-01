@@ -23,6 +23,7 @@ Game::Game(const char* title) {
 	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale, window.getSize()));
 	}
+	npc = new NPC("art/TestNPC.png", game_scale, sf::Vector2f(200.0f, 10.0f), "Shopkeeper");
 }
 
 void Game::handleEvents() {
@@ -95,6 +96,8 @@ void Game::update() {
 		i->update(&window);
 	}
 
+	npc->update(&window);
+
 	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
 		
 	test_mouse.setPosition(mouse.getPosition(window).x, mouse.getPosition(window).y);
@@ -107,9 +110,13 @@ void Game::render() {
 		i->render(&window);
 	}
 
+	npc->render(&window);
+
 	player->render(&window);
 
 	window.draw(test_mouse);
+
+	npc->renderDialogue(&window);
 
 	window.display();	
 }
