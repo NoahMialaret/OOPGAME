@@ -2,14 +2,10 @@
 
 Game::Game(const char* title) {
 	window.create(sf::VideoMode(800, 600), title);
-    
-	if (!player_tex.loadFromFile("art/TestCharacter.png")) {
-		std::cout << "Texture could not be loaded!" << std::endl;
-		return;
-	}
 
-	test_player.setTexture(player_tex, true);
-	test_player.setScale(sf::Vector2f(game_scale, game_scale));
+	window.setKeyRepeatEnabled(false);
+
+	window.setMouseCursorVisible(false);
 
 	if (!mouse_tex.loadFromFile("art/Mouse.png")) {
 		std::cout << "Texture could not be loaded!" << std::endl;
@@ -22,9 +18,12 @@ Game::Game(const char* title) {
 	std::cout << "Enabling standard play." << std::endl;
 	cur_game_state = GameState::standard_play;
 
-	window.setKeyRepeatEnabled(false);
-
-	window.setMouseCursorVisible(false);
+	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(100.0f,10.0f));
+	for (int i = 0; i < 3; i++)
+	{
+		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale, window.getSize()));
+	}
+	npc = new NPC("art/TestNPC.png", game_scale, sf::Vector2f(200.0f, 10.0f), "Shopkeeper");
 }
 
 void Game::handleEvents() {
@@ -61,6 +60,13 @@ void Game::handleEvents() {
 					case sf::Keyboard::Space:
 						is_space_pressed = true;
 						break;
+
+					case sf::Keyboard::LShift:
+						for (auto& i : enemies) {
+							sf::Vector2f new_pos = i->teleport(window.getSize());
+							std::cout << "New enemy position is (" << new_pos.x << ", " << new_pos.y << ")" << std::endl;
+						}
+						break;
 				}
 				break;
 				
@@ -86,75 +92,31 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
-	if (!is_space_pressed) {
-		jump_hold = false;
+	for (auto& i : enemies) {
+		i->update(&window);
 	}
 
-	// Continues adding jump height if the jump button is held
-	if (is_space_pressed && can_increase_jump_velocity && velocity.y > -15.0f) {
-		velocity.y -= 2.5f;
-	} 
-	else {
-		can_increase_jump_velocity = false;
-	}
+	npc->update(&window);
 
-	// Initial jump velocity
-	if (!jump_hold && is_space_pressed && is_grounded) {
-		velocity.y = -5.0f;
-		is_grounded = false;
-		can_increase_jump_velocity = true;
-		jump_hold = true;
-	}
-
-	// Effect of gravity on the player
-	velocity.y += 0.8f;
-
-	// Horizontal velocity calculation, varies depending on whether the player is gorunded or not
-	if (is_d_pressed != is_a_pressed) { // i.e. if only one of them is pressed
-		float speed_modifier = 1.0f - !is_grounded * 0.5f;
-
-		velocity.x += is_d_pressed * speed_modifier - is_a_pressed * speed_modifier;
+	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
 		
-		velocity.x = std::clamp(velocity.x, -10.0f, 10.0f);
-	}
-	else { // if both or neither buttons are pressed
-		if (velocity.x > 0.0f) {
-			velocity.x -= is_grounded ? 1.0f : 0.2f;
-			if (velocity.x < 0.0f) {
-				velocity.x = 0.0f;
-			}
-		}
-		else if (velocity.x < 0.0f) {
-			velocity.x += is_grounded ? 1.0f : 0.2f;
-			if (velocity.x > 0.0f) {
-				velocity.x = 0.0f;
-			}
-		}
-	}
-
-	test_player.move(velocity);
-
-	if (test_player.getPosition().y > (float)window.getSize().y - sprite_dimensions * game_scale) {
-		is_grounded = true;
-		velocity.y = 0.0f;
-	}
-	if (test_player.getPosition().x < 0.0f || test_player.getPosition().x > (float)window.getSize().x - sprite_dimensions * game_scale) {
-		velocity.x = 0.0f;
-	}
-
-	sf::Vector2f pos(0.0f, 0.0f);
-	pos.x = std::clamp(test_player.getPosition().x, 0.0f, (float)window.getSize().x - sprite_dimensions * game_scale);
-	pos.y = std::clamp(test_player.getPosition().y, 0.0f, (float)window.getSize().y - sprite_dimensions * game_scale);
-	test_player.setPosition(pos);
-
 	test_mouse.setPosition(mouse.getPosition(window).x, mouse.getPosition(window).y);
 }
 
 void Game::render() {
 	window.clear();
 
-	window.draw(test_player);
+	for (auto& i : enemies) {
+		i->render(&window);
+	}
+
+	npc->render(&window);
+
+	player->render(&window);
+
 	window.draw(test_mouse);
+
+	npc->renderDialogue(&window);
 
 	window.display();	
 }
@@ -162,6 +124,12 @@ void Game::render() {
 void Game::clean() {
 	window.close();
 	
+	delete player;
+
+	for(auto& i : enemies) {
+		delete i;
+	}
+
 	std::cout << "Game successfully cleaned!\n";
 }
 
