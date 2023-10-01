@@ -6,7 +6,9 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <vector>
 
+#include "Enemy.h"
 #include "Entity.h"
 #include "Player.h"
 
@@ -42,7 +44,8 @@ private:
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
 	//Game Objects -----------------------------------------------------
-	Player player = Player("TestCharacter.png", game_scale);
+	Player* player;
+	std::vector<Enemy*> enemies;
 
 public:
 	Game() = delete;

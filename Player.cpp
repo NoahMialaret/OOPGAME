@@ -1,8 +1,8 @@
 #include "Player.h"
 
-Player::Player(const char *tex_name, float game_scale)
+Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     :
-    Entity(tex_name, game_scale)
+    Entity(tex_name, game_scale, pos)
 {}
 
 void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button) {

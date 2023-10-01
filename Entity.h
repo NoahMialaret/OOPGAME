@@ -12,7 +12,7 @@ protected:
 	sf::Sprite sprite;
 
 public:
-    Entity(const char* tex_name, float game_scale);
+    Entity(const char* tex_name, float game_scale, sf::Vector2f pos);
     void render(sf::RenderWindow* win) const;
 };
 

@@ -19,7 +19,7 @@ protected:
 
     int health = 5;
 public:
-    Player(const char* tex_name, float game_scale);
+    Player(const char* tex_name, float game_scale, sf::Vector2f pos);
     void update(const sf::RenderWindow* win, bool jump_button, bool left_button, bool right_button);
 };
 
