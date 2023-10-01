@@ -15,6 +15,7 @@ public:
     void render(sf::RenderWindow* win) const;
 
     sf::Vector2f getPosition() const;
+    int getType() const;
 };
 
 #endif

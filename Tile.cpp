@@ -21,3 +21,8 @@ sf::Vector2f Tile::getPosition() const
 {
     return sprite.getPosition();
 }
+
+int Tile::getType() const
+{
+    return type;
+}

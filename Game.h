@@ -3,6 +3,7 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Level.h"
 #include "Tile.h"
 
 #include <algorithm>
@@ -29,13 +30,11 @@ private:
 	sf::Texture mouse_tex;
 	sf::Sprite test_mouse;
 
-	sf::Texture tile_tex;
-
 	sf::Mouse mouse;
 
 	//Game Objects -----------------------------------------------------
 
-	Tile tile;
+	std::unique_ptr<Level> level = nullptr;
 
 	//Game Variables ----------------------------------------------------
 	GameState cur_game_state = GameState::not_running; // The current state of the game
