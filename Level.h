@@ -29,7 +29,10 @@ public:
     void loadDefaultLevel(float game_scale, float sprite_dim);
     void render(sf::RenderWindow* win) const;
 
+    std::vector<int> getSurroundingCollision(sf::Vector2i grid_pos);
+
     Tile& getTile(sf::Vector2i tile_pos);
+    int getTileType(sf::Vector2i tile_pos);
 };
 
 #endif

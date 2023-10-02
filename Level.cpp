@@ -73,6 +73,35 @@ void Level::render(sf::RenderWindow* win) const {
     }
 }
 
+std::vector<int> Level::getSurroundingCollision(sf::Vector2i grid_pos) {
+    std::vector<int> col;
+    std::vector<int> type;
+    type.push_back(getTileType(grid_pos));
+    type.push_back(getTileType(grid_pos + sf::Vector2i(1,0)));
+    type.push_back(getTileType(grid_pos + sf::Vector2i(1,1)));
+    type.push_back(getTileType(grid_pos + sf::Vector2i(0,1)));
+
+    col.push_back((int)(type[0] > 0) - (int)(type[1] > 0));
+    col.push_back((int)(type[1] > 0) - (int)(type[2] > 0));
+    col.push_back(0 - (int)(type[2] > 0) + (int)(type[3] > 0));
+    col.push_back(0 - (int)(type[3] > 0) + (int)(type[0] > 0));
+
+    return col;
+}
+
 Tile &Level::getTile(sf::Vector2i tile_pos) {
+    assert(tile_pos.x >= 0 || tile_pos.y >= 0 || tile_pos.x < dim.x || tile_pos.y < dim.y);
     return tiles[tile_pos.y * dim.x + tile_pos.x];
+}
+
+int Level::getTileType(sf::Vector2i tile_pos) {
+    if (tile_pos.x < 0 || tile_pos.x >= dim.x)
+    {
+        return (int)TileType::ground;
+    }
+    if (tile_pos.y < 0 || tile_pos.y >= dim.y)
+    {
+        return (int)TileType::empty;
+    }
+    return tiles[tile_pos.y * dim.x + tile_pos.x].getType();
 }

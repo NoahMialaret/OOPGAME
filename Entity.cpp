@@ -30,3 +30,26 @@ void Entity::update(const sf::RenderWindow* win) {
 void Entity::render(sf::RenderWindow* win) const {
     win->draw(sprite);
 }
+
+sf::Vector2f Entity::getPosition() const
+{
+    return sprite.getPosition();
+}
+
+sf::Vector2f Entity::getVelocity() const
+{
+    return velocity;
+}
+
+void Entity::setVelocity(sf::Vector2f new_vel) {
+	velocity = new_vel;
+}
+
+void Entity::move(sf::Vector2f offset) {
+	sprite.move(offset);
+}
+
+void Entity::setGrounded(bool _is_grounded)
+{
+	is_grounded = _is_grounded;
+}
