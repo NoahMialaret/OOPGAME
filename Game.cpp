@@ -10,6 +10,8 @@ Game::Game(const char* title)
 
 	window.setMouseCursorVisible(false);
 
+	main_view = window.getDefaultView();
+
 	if (!mouse_tex.loadFromFile("art/Mouse.png")) {
 		std::cout << "Texture could not be loaded!" << std::endl;
 		return;
@@ -66,6 +68,10 @@ void Game::handleEvents() {
 						is_space_pressed = true;
 						break;
 
+					case sf::Keyboard::R:
+						player->reset();
+						break;
+
 					case sf::Keyboard::LShift:
 						shuffleEnemies();
 						break;
@@ -94,6 +100,7 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
+
 	for (auto& i : enemies) {
 		sf::Vector2f prev_pos = i->getPosition();
 		i->update(&window);
@@ -101,11 +108,10 @@ void Game::update() {
 	}
 
 	sf::Vector2f prev_pos = player->getPosition();
-
 	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
 	handleCollision(player, prev_pos);
-		
-	test_mouse.setPosition(mouse.getPosition(window).x, mouse.getPosition(window).y);
+
+	updateMainView();
 }
 
 void Game::render() {
@@ -262,4 +268,23 @@ void Game::shuffleEnemies() {
 		sf::Vector2f spawn_pos(game_scale * sprite_dimensions * spawn_grid_pos.x, game_scale * sprite_dimensions * spawn_grid_pos.y);
 		i->teleport(spawn_pos);
 	}
+}
+
+void Game::updateMainView() {
+	sf::Vector2f player_centre(player->getPosition().x + game_scale * sprite_dimensions / 2, player->getPosition().y + game_scale * sprite_dimensions / 2);
+	main_view.setCenter(player_centre);
+
+	if(main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+		main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
+	}
+
+	if(main_view.getCenter().x - main_view.getSize().x / 2 < 0) {
+		main_view.setCenter(main_view.getSize().x / 2, main_view.getCenter().y);
+	}
+	else if (main_view.getCenter().x + main_view.getSize().x / 2 > level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
+		main_view.setCenter((level.get()->getLevelDim().x * game_scale * sprite_dimensions)- main_view.getSize().x / 2, main_view.getCenter().y);
+	}
+	window.setView(main_view);
+
+	test_mouse.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }

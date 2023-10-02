@@ -40,13 +40,13 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	}
 	else { // if both or neither buttons are pressed
 		if (velocity.x > 0.0f) {
-			velocity.x -= is_grounded ? 0.4f : 0.07f;
+			velocity.x -= is_grounded ? 0.65f : 0.1f;
 			if (velocity.x < 0.0f) {
 				velocity.x = 0.0f;
 			}
 		}
 		else if (velocity.x < 0.0f) {
-			velocity.x += is_grounded ? 0.4f : 0.07f;
+			velocity.x += is_grounded ? 0.65f : 0.1f;
 			if (velocity.x > 0.0f) {
 				velocity.x = 0.0f;
 			}
@@ -54,19 +54,6 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	}
 
 	sprite.move(velocity);
-
-	if (sprite.getPosition().y > (float)win->getSize().y - sprite.getScale().y * sprite.getTextureRect().height) {
-		is_grounded = true;
-		velocity.y = 0.0f;
-	}
-	if (sprite.getPosition().x < 0.0f || sprite.getPosition().x > (float)win->getSize().x - sprite.getScale().x * sprite.getTextureRect().width) {
-		velocity.x = 0.0f;
-	}
-
-	sf::Vector2f pos(0.0f, 0.0f);
-	pos.x = std::clamp(sprite.getPosition().x, 0.0f, (float)win->getSize().x - sprite.getScale().x * sprite.getTextureRect().width);
-	pos.y = std::clamp(sprite.getPosition().y, 0.0f, (float)win->getSize().y - sprite.getScale().y * sprite.getTextureRect().height);
-	sprite.setPosition(pos);
 }
 
 void Player::setVelocity(sf::Vector2f new_vel) {
@@ -75,4 +62,9 @@ void Player::setVelocity(sf::Vector2f new_vel) {
 		can_increase_jump_velocity = false;
 	}
 	velocity = new_vel;
+}
+
+void Player::reset() {
+	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
+	velocity = sf::Vector2f(0.0f, 0.0f);
 }

@@ -35,6 +35,8 @@ private:
 
 	sf::Mouse mouse;
 
+	sf::View main_view;
+
 	//Game Variables ---------------------------------------------------
 	GameState cur_game_state = GameState::not_running; // The current state of the game
 
@@ -77,8 +79,8 @@ private:
 
 	void collision_y_correction(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
 	void collision_x_correction(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
-
 	void shuffleEnemies();
+	void updateMainView();
 };
 
 #endif

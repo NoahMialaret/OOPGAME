@@ -18,6 +18,7 @@ public:
     Player(const char* tex_name, float game_scale, sf::Vector2f pos);
     void update(const sf::RenderWindow* win, bool jump_button, bool left_button, bool right_button);
     void setVelocity(sf::Vector2f new_vel) override;
+    void reset();
 };
 
 #endif
