@@ -38,6 +38,8 @@ private:
 	//Game Variables ---------------------------------------------------
 	GameState cur_game_state = GameState::not_running; // The current state of the game
 
+    std::mt19937 rng;
+
 	// Boolean values representing whether a particular button has been pressed
 	bool is_d_pressed = false;
 	bool is_a_pressed = false;
@@ -75,6 +77,8 @@ private:
 
 	void collision_y_correction(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
 	void collision_x_correction(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
+
+	void shuffleEnemies();
 };
 
 #endif

@@ -1,6 +1,9 @@
 #include "Game.h"
 
-Game::Game(const char* title) {
+Game::Game(const char* title) 
+	:
+    rng(std::random_device()())
+{
 	window.create(sf::VideoMode(800, 600), title);
 
 	window.setKeyRepeatEnabled(false);
@@ -21,9 +24,11 @@ Game::Game(const char* title) {
 	level = std::make_unique<Level>(game_scale, sprite_dimensions);
   
 	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(0.0f,50.0f));
+
 	for (int i = 0; i < 3; i++)	{
-		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale, window.getSize()));
+		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
+	shuffleEnemies();
 }
 
 void Game::handleEvents() {
@@ -62,10 +67,7 @@ void Game::handleEvents() {
 						break;
 
 					case sf::Keyboard::LShift:
-						for (auto& i : enemies) {
-							sf::Vector2f new_pos = i->teleport(window.getSize());
-							std::cout << "New enemy position is (" << new_pos.x << ", " << new_pos.y << ")" << std::endl;
-						}
+						shuffleEnemies();
 						break;
 				}
 				break;
@@ -236,4 +238,28 @@ void Game::collision_x_correction(Entity *ent, int top_col_dir, int bottom_col_d
 
 	ent->setVelocity(sf::Vector2f(0.0f, ent->getVelocity().y));
 	ent->move(sf::Vector2f(offset, 0.0f));
+}
+
+void Game::shuffleEnemies() {
+	std::vector<sf::Vector2i> spawns;
+
+	for (auto& i : enemies) {
+		sf::Vector2i spawn_grid_pos;
+		bool can_spawn = false;
+
+		while (!can_spawn) {
+			can_spawn = true;
+			spawn_grid_pos = level.get()->getValidSpawnPos(rng);
+			for (int i = 0; i < spawns.size(); i++) {
+				if (spawn_grid_pos == spawns[i]) {
+					can_spawn = false;
+					break;
+				}
+			}
+		}
+
+		spawns.push_back(spawn_grid_pos);
+		sf::Vector2f spawn_pos(game_scale * sprite_dimensions * spawn_grid_pos.x, game_scale * sprite_dimensions * spawn_grid_pos.y);
+		i->teleport(spawn_pos);
+	}
 }

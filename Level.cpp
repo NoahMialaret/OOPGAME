@@ -89,18 +89,32 @@ std::vector<int> Level::getSurroundingCollision(sf::Vector2i grid_pos) {
     return col;
 }
 
+sf::Vector2i Level::getLevelDim() const {
+    return dim;
+}
+
+sf::Vector2i Level::getValidSpawnPos(std::mt19937& rng) const {
+    std::uniform_int_distribution<int> x_dist(0, dim.x);
+    std::uniform_int_distribution<int> y_dist(0, dim.y);
+
+    while(true) {
+        sf::Vector2i random_pos = sf::Vector2i(x_dist(rng), y_dist(rng));
+        if (getTileType(random_pos) == 0 && getTileType(random_pos + sf::Vector2i(0, 1)) > 0) {
+            return random_pos;
+        }
+    }
+}
+
 Tile &Level::getTile(sf::Vector2i tile_pos) {
     assert(tile_pos.x >= 0 || tile_pos.y >= 0 || tile_pos.x < dim.x || tile_pos.y < dim.y);
     return tiles[tile_pos.y * dim.x + tile_pos.x];
 }
 
-int Level::getTileType(sf::Vector2i tile_pos) {
-    if (tile_pos.x < 0 || tile_pos.x >= dim.x)
-    {
+const int Level::getTileType(sf::Vector2i tile_pos) const {
+    if (tile_pos.x < 0 || tile_pos.x >= dim.x) {
         return (int)TileType::ground;
     }
-    if (tile_pos.y < 0 || tile_pos.y >= dim.y)
-    {
+    if (tile_pos.y < 0 || tile_pos.y >= dim.y) {
         return (int)TileType::empty;
     }
     return tiles[tile_pos.y * dim.x + tile_pos.x].getType();
