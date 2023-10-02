@@ -3,18 +3,17 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Enemy.h"
+#include "Entity.h"
 #include "Level.h"
+#include "NPC.h"
+#include "Player.h"
 #include "Tile.h"
 
 #include <algorithm>
 #include <iostream>
 #include <memory>
 #include <vector>
-
-#include "Enemy.h"
-#include "Entity.h"
-#include "NPC.h"
-#include "Player.h"
 
 //Game object handles most of the game proccesses and is responsible for updating and rendering
 class Game {
@@ -36,8 +35,12 @@ private:
 
 	sf::Mouse mouse;
 
+	sf::View main_view;
+
 	//Game Variables ---------------------------------------------------
 	GameState cur_game_state = GameState::not_running; // The current state of the game
+
+    std::mt19937 rng;
 
 	// Boolean values representing whether a particular button has been pressed
 	bool is_d_pressed = false;
@@ -52,7 +55,6 @@ private:
   
 	Player* player;
 	std::vector<Enemy*> enemies;
-	NPC* npc;
 
 public:
 	Game() = delete;
@@ -63,6 +65,8 @@ public:
 	void update();			 //Handles game logic
 	void render();			 //Handles graphics rendering
 
+	void handleCollision(Entity* ent, sf::Vector2f prev_pos);
+
 	void clean();			 //Destroys and cleans multiple proccesses upon termination
 
 	Game::GameState getCurGameState() const; //Returns isRunning
@@ -72,6 +76,11 @@ private:
 	void pause();
 	void unpause();
 	void gameExit();
+
+	void collision_y_correction(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
+	void collision_x_correction(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
+	void shuffleEnemies();
+	void updateMainView();
 };
 
 #endif

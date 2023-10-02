@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <vector>
 
 class Level {
@@ -29,7 +30,12 @@ public:
     void loadDefaultLevel(float game_scale, float sprite_dim);
     void render(sf::RenderWindow* win) const;
 
+    std::vector<int> getSurroundingCollision(sf::Vector2i grid_pos);
+
+    sf::Vector2i getLevelDim() const;
+    sf::Vector2i getValidSpawnPos(std::mt19937& rng) const;
     Tile& getTile(sf::Vector2i tile_pos);
+    const int getTileType(sf::Vector2i tile_pos) const;
 };
 
 #endif

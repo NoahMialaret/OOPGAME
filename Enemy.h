@@ -11,13 +11,11 @@
 
 class Enemy : public Entity {
 private:
-    std::mt19937 rng;
-
     int health = 3;
 public:
-    Enemy(const char* tex_name, float game_scale, sf::Vector2u level_bounds);
+    Enemy(const char* tex_name, float game_scale);
     //void attack();
-    sf::Vector2f teleport(const sf::Vector2u& level_bounds);
+    void teleport(sf::Vector2f new_pos);
 };
 
 #endif
