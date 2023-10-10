@@ -27,11 +27,12 @@ void BasicBow::commenceAttack(float initial_angle) {
     is_attacking = true;
 }
 
-void BasicBow::update() {
+void BasicBow::update(sf::Vector2f mouse_pos) {
     if (is_attacking) {
         sprites[0].move(sf::Vector2f(1.0f, 0.0f));
     }
-    bow_sprite.rotate(1.0f);
+
+    bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
 }
 
 void BasicBow::getSpritesForCollision() {

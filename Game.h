@@ -35,7 +35,7 @@ private:
     sf::RenderWindow window;
 
 	sf::Texture mouse_tex;
-	sf::Sprite test_mouse;
+	sf::Sprite mouse_sprite;
 
 	sf::Mouse mouse;
 

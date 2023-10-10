@@ -17,8 +17,8 @@ Game::Game(const char* title)
 		return;
 	}
 
-	test_mouse.setTexture(mouse_tex, true);
-	test_mouse.setScale(sf::Vector2f(game_scale, game_scale));
+	mouse_sprite.setTexture(mouse_tex, true);
+	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
 	std::cout << "Enabling standard play." << std::endl;
 	cur_game_state = GameState::standard_play;
@@ -119,8 +119,9 @@ void Game::update() {
 		handleCollision(i, prev_pos);
 	}
 
+
 	sf::Vector2f prev_pos = player->getPosition();
-	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
+	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
 	handleCollision(player, prev_pos);
 
 	updateMainView();
@@ -137,7 +138,7 @@ void Game::render() {
 
 	player->render(&window);
 
-	window.draw(test_mouse);
+	window.draw(mouse_sprite);
 
 	window.display();	
 }
@@ -298,5 +299,5 @@ void Game::updateMainView() {
 	}
 	window.setView(main_view);
 
-	test_mouse.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }

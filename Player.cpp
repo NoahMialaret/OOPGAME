@@ -5,8 +5,14 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button) {
+void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos) {
 
+	if (cur_weapon != nullptr)
+	{
+		cur_weapon->update(mouse_pos);
+		return;
+	}
+	
     if (!jump_button) {
 		jump_hold = false;
 	}
@@ -54,11 +60,6 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	}
 
 	sprite.move(velocity);
-
-	if (cur_weapon != nullptr)
-	{
-		cur_weapon->update();
-	}
 }
 
 void Player::render(sf::RenderWindow* win) const {
