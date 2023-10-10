@@ -18,7 +18,7 @@ protected:
 public:
     Entity(const char* tex_name, float game_scale, sf::Vector2f pos);
     void update(const sf::RenderWindow* win);
-    void render(sf::RenderWindow* win) const;
+    virtual void render(sf::RenderWindow* win) const;
 
     sf::Vector2f getPosition() const;
     sf::Vector2f getVelocity() const;

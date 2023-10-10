@@ -10,6 +10,10 @@
 #include "Player.h"
 #include "Tile.h"
 
+#include "Weapon.h"
+#include "Bow.h"
+#include "BasicBow.h"
+
 #include <algorithm>
 #include <iostream>
 #include <memory>

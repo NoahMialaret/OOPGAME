@@ -27,6 +27,10 @@ Game::Game(const char* title)
   
 	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(0.0f,50.0f));
 
+	Weapon* test = new BasicBow(game_scale);
+
+	player->giveWeapon(test);
+
 	for (int i = 0; i < 3; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -53,7 +57,7 @@ void Game::handleEvents() {
 			}
 
 			case sf::Event::KeyPressed:
-				std::cout << "Key press event called." << std::endl;
+				//std::cout << "Key press event called." << std::endl;
 
 				switch (event.key.code) {
 					case sf::Keyboard::D:
@@ -75,11 +79,19 @@ void Game::handleEvents() {
 					case sf::Keyboard::LShift:
 						shuffleEnemies();
 						break;
+
+					case sf::Keyboard::Num0:
+						player->putAwayWeapon();
+						break;
+
+					case sf::Keyboard::Num1:
+						player->drawWeapon(0);
+						break;
 				}
 				break;
 				
 			case sf::Event::KeyReleased:
-				std::cout << "Key released event called." << std::endl;
+				//std::cout << "Key released event called." << std::endl;
 
 				switch (event.key.code) {
 					case sf::Keyboard::D:

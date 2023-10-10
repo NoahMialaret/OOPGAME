@@ -54,11 +54,23 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	}
 
 	sprite.move(velocity);
+
+	if (cur_weapon != nullptr)
+	{
+		cur_weapon->update();
+	}
+}
+
+void Player::render(sf::RenderWindow* win) const {
+    win->draw(sprite);
+
+	if (cur_weapon != nullptr) {
+		cur_weapon->render(win);
+	}
 }
 
 void Player::setVelocity(sf::Vector2f new_vel) {
-	if (new_vel.y > velocity.y)
-	{
+	if (new_vel.y > velocity.y) {
 		can_increase_jump_velocity = false;
 	}
 	velocity = new_vel;
@@ -67,4 +79,43 @@ void Player::setVelocity(sf::Vector2f new_vel) {
 void Player::reset() {
 	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
 	velocity = sf::Vector2f(0.0f, 0.0f);
+}
+
+void Player::giveWeapon(Weapon* weapon) {
+	weapons.push_back(weapon);
+
+	std::cout << "Gave player a weapon (" << weapon->getName() << ")." << std::endl;
+}
+
+void Player::drawWeapon(int index) {
+	if (weapons.size() == 0) {
+		std::cout << "Player has no weapons!" << std::endl;
+		return;
+	}
+
+	if (index < 0 || index >= weapons.size()) {
+		std::cout << "Trying to access non-existent weapon in Player::drawWeapon(), accessing first weapon." << std::endl;
+		cur_weapon = weapons[0];
+		return;
+	}
+
+	cur_weapon = weapons[index];
+	std::cout << "Weapon at " << index << " drawn!" << std::endl;
+	cur_weapon->drawWeapon(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
+		sprite.getPosition().y + sprite.getScale().y * (float)sprite.getTextureRect().height / 2));
+}
+
+void Player::putAwayWeapon() {
+	std::cout << "Putting away the player's weapon." << std::endl;
+	cur_weapon = nullptr;
+}
+
+void Player::clean()
+{
+	for (int i = 0; i < weapons.size(); i++)
+	{
+		delete weapons[i];
+	}
+
+	std::cout << "Successfully cleaned Player!" << std::endl;
 }
