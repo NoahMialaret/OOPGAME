@@ -288,3 +288,31 @@ void Game::updateMainView() {
 
 	test_mouse.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }
+
+void Game::startGameplay(Button* play_button) {
+	while(window.isOpen()) {
+		sf::Event play_event;
+
+		while (window.pollEvent(play_event)) {
+
+			if (play_event.type == sf::Event::Closed) {
+				window.close();
+			}
+
+			if (play_event.type == sf::Event::MouseButtonReleased) {
+				if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
+					return;
+				}
+				
+			}
+
+		}
+
+		window.clear();
+
+		play_button->draw(&window);
+
+		window.display();
+
+	}
+}

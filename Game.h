@@ -15,6 +15,8 @@
 #include <memory>
 #include <vector>
 
+#include "Button.h"
+
 //Game object handles most of the game proccesses and is responsible for updating and rendering
 class Game {
 public:
@@ -70,6 +72,8 @@ public:
 	void clean();			 //Destroys and cleans multiple proccesses upon termination
 
 	Game::GameState getCurGameState() const; //Returns isRunning
+
+	void startGameplay(Button* play_button);
 
 private:
 	void enableStandardPlay();
