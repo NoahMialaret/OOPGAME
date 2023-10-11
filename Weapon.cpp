@@ -8,8 +8,19 @@ Weapon::Weapon(int damage, int gold_cost, std::string name, float game_scale)
     game_scale(game_scale)
 {}
 
-std::string Weapon::getName() {
+std::vector<sf::Sprite> *Weapon::getSpritesForCollision()
+{
+    return &sprites;
+}
+
+std::string Weapon::getName()
+{
     return name;
+}
+
+int Weapon::getDamage() const
+{
+    return damage;
 }
 
 bool Weapon::isAttacking()

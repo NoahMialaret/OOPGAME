@@ -21,10 +21,12 @@ public:
     virtual void render(sf::RenderWindow* win) const;
 
     sf::Vector2f getPosition() const;
+    sf::IntRect getHitbox() const;
     sf::Vector2f getVelocity() const;
     virtual void setVelocity(sf::Vector2f new_vel);
     void move(sf::Vector2f offset);
     void setGrounded(bool is_grounded);
+
 };
 
 #endif

@@ -10,8 +10,8 @@ private:
 public:
     BasicBow(float game_scale);
     void commenceAttack() override;
-    void update(sf::Vector2f mouse_pos) override;
-    void getSpritesForCollision() override;
+    void updateWeapon(sf::Vector2f mouse_pos) override;
+    void updateAttack() override;
 
     void reset() override;
 };

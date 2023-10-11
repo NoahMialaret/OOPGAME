@@ -61,6 +61,8 @@ private:
 	Player* player;
 	std::vector<Enemy*> enemies;
 
+	Weapon* cur_weapon = nullptr;
+
 public:
 	Game() = delete;
 	Game(const char* title); //Game constructor
@@ -82,8 +84,9 @@ private:
 	void unpause();
 	void gameExit();
 
-	void collision_y_correction(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
-	void collision_x_correction(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
+	void collisionYCorrection(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
+	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
+	void weaponCollisions();
 	void shuffleEnemies();
 	void updateMainView();
 };

@@ -10,11 +10,13 @@
 
 class Enemy : public Entity {
 private:
-    int health = 3;
+    int health = 1;
 public:
     Enemy(const char* tex_name, float game_scale);
     //void attack();
     void teleport(sf::Vector2f new_pos);
+    void takeDamage(int damage_amount);
+    int getHealth() const;
 };
 
 #endif

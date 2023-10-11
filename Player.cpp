@@ -5,17 +5,7 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, bool mouse_button, sf::Vector2f mouse_pos) {
-
-	if (cur_weapon != nullptr)
-	{
-		if (mouse_button && !cur_weapon->isAttacking())
-		{
-			cur_weapon->commenceAttack();
-		}
-		cur_weapon->update(mouse_pos);
-		return;
-	}
+void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos) {
 	
     if (!jump_button) {
 		jump_hold = false;
@@ -68,10 +58,6 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 
 void Player::render(sf::RenderWindow* win) const {
     win->draw(sprite);
-
-	if (cur_weapon != nullptr) {
-		cur_weapon->render(win);
-	}
 }
 
 void Player::setVelocity(sf::Vector2f new_vel) {
@@ -92,33 +78,22 @@ void Player::giveWeapon(Weapon* weapon) {
 	std::cout << "Gave player a weapon (" << weapon->getName() << ")." << std::endl;
 }
 
-void Player::drawWeapon(int index) {
+Weapon* Player::getWeapon(int index) {
 	if (weapons.size() == 0) {
 		std::cout << "Player has no weapons!" << std::endl;
-		return;
+		return nullptr;
 	}
 
 	if (index < 0 || index >= weapons.size()) {
 		std::cout << "Trying to access non-existent weapon in Player::drawWeapon(), accessing first weapon." << std::endl;
-		cur_weapon = weapons[0];
-		return;
+		return weapons[0];
 	}
 
-	cur_weapon = weapons[index];
-	std::cout << "Weapon at " << index << " drawn!" << std::endl;
-	cur_weapon->drawWeapon(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
+	weapons[index]->drawWeapon(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
 		sprite.getPosition().y + sprite.getScale().y * (float)sprite.getTextureRect().height / 2));
-}
 
-void Player::putAwayWeapon() {
-	if (cur_weapon == nullptr)
-	{
-		std::cout << "Player is not holding a weapon!";
-		return;
-	}
-	std::cout << "Putting away the player's weapon." << std::endl;
-	cur_weapon->reset();
-	cur_weapon = nullptr;
+	std::cout << "Weapon at " << index << " drawn! (" << weapons[index]->getName() << ")" << std::endl;
+	return weapons[index];
 }
 
 void Player::clean()
@@ -129,4 +104,9 @@ void Player::clean()
 	}
 
 	std::cout << "Successfully cleaned Player!" << std::endl;
+}
+
+bool Player::isAttackActive()
+{
+    return is_attack_active;
 }

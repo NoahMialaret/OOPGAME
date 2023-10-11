@@ -33,31 +33,31 @@ BasicBow::BasicBow(float game_scale)
 
     arrow_velocities.push_back(sf::Vector2f(0.0f, 0.0f));
     arrow_velocity = &arrow_velocities[0];
+
+    sprite_active.push_back(false);
 }
 
-void BasicBow::commenceAttack() {  
+void BasicBow::commenceAttack() {
+
     arrow->setPosition(bow_sprite.getPosition());
 
     *arrow_velocity = calculateArrowVelocity(bow_sprite.getRotation());
+    
+    sprite_active[0] = true;
 
     is_attacking = true;
 }
 
-void BasicBow::update(sf::Vector2f mouse_pos) {
+void BasicBow::updateWeapon(sf::Vector2f mouse_pos) {
+    bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
+}
 
-    if (is_attacking) {
+void BasicBow::updateAttack() {
         arrow_velocities[0].y += 0.7;
         arrow->move(arrow_velocities[0]);
 
         float angle = calculateAngle(arrow_velocities[0], sf::Vector2f(0.0f, 0.0f));
         arrow->setRotation(angle);
-    }
-    else {
-        bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
-    }
-}
-
-void BasicBow::getSpritesForCollision() {
 }
 
 void BasicBow::reset() {

@@ -28,6 +28,16 @@ sf::Vector2f Entity::getPosition() const
     return sprite.getPosition();
 }
 
+sf::IntRect Entity::getHitbox() const
+{
+	sf::IntRect hitbox = sprite.getTextureRect();
+	hitbox.top = sprite.getPosition().y;
+	hitbox.left = sprite.getPosition().x;
+	hitbox.height = hitbox.height * sprite.getScale().y;
+	hitbox.width = hitbox.width * sprite.getScale().x;
+    return hitbox;
+}
+
 sf::Vector2f Entity::getVelocity() const
 {
     return velocity;

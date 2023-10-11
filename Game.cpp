@@ -31,7 +31,7 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test);
 
-	for (int i = 0; i < 3; i++)	{
+	for (int i = 0; i < 8; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
 	shuffleEnemies();
@@ -53,6 +53,7 @@ void Game::handleEvents() {
 
 				sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
         		window.setView(sf::View(visibleArea));
+				main_view = window.getDefaultView();
 				break;
 			}
 
@@ -97,11 +98,18 @@ void Game::handleEvents() {
 						break;
 
 					case sf::Keyboard::Num0:
-						player->putAwayWeapon();
+						if (cur_weapon == nullptr)
+						{
+							std::cout << "No weapon is being used!";
+							continue;;
+						}
+						std::cout << "Putting away the weapon." << std::endl;
+						cur_weapon->reset();
+						cur_weapon = nullptr;
 						break;
 
 					case sf::Keyboard::Num1:
-						player->drawWeapon(0);
+						cur_weapon = player->getWeapon(0);
 						break;
 				}
 				break;
@@ -135,10 +143,24 @@ void Game::update() {
 		handleCollision(i, prev_pos);
 	}
 
+	if (cur_weapon == nullptr) {
+		sf::Vector2f prev_pos = player->getPosition();
+		player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
+		handleCollision(player, prev_pos);
+	}
 
-	sf::Vector2f prev_pos = player->getPosition();
-	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, is_mouse_pressed, mouse_sprite.getPosition());
-	handleCollision(player, prev_pos);
+	if (cur_weapon != nullptr) {
+		if (!cur_weapon->isAttacking()) {
+			cur_weapon->updateWeapon(mouse_sprite.getPosition());
+			if (is_mouse_pressed) {
+				cur_weapon->commenceAttack();
+			}
+		}
+		else { // Weapon is attacking
+			cur_weapon->updateAttack();
+			weaponCollisions();
+		}
+	}
 
 	updateMainView();
 }
@@ -155,6 +177,11 @@ void Game::render() {
 	player->render(&window);
 
 	window.draw(mouse_sprite);
+
+	if (cur_weapon != nullptr)
+	{
+		cur_weapon->render(&window);
+	}
 
 	window.display();	
 }
@@ -186,30 +213,30 @@ void Game::handleCollision(Entity* ent, sf::Vector2f prev_pos) {
 
 	// Collision check in the case of a wall or floor
 	if (col[1] != 0 && col[3] != 0) {
-		collision_y_correction(ent, col[3], col[1], cur_pos.y, col_pos.y);
+		collisionYCorrection(ent, col[3], col[1], cur_pos.y, col_pos.y);
 		return;
 	}
 	else if (col[0] != 0 && col[2] != 0) {
-		collision_x_correction(ent, col[0], col[2], cur_pos.x, col_pos.x);
+		collisionXCorrection(ent, col[0], col[2], cur_pos.x, col_pos.x);
 		return;
 	}
 
 	bool prioritise_y_correction = (prev_pos.x < col_pos.x && (col[0] == 1 || col[2] == 1)) || (prev_pos.x + game_scale * sprite_dimensions > col_pos.x && (col[0] == -1|| col[2] == -1));
 
 	if (prioritise_y_correction) {
-		collision_y_correction(ent, col[3], col[1], cur_pos.y, col_pos.y);
+		collisionYCorrection(ent, col[3], col[1], cur_pos.y, col_pos.y);
 	}
 	else {
-		collision_x_correction(ent, col[0], col[2], cur_pos.x, col_pos.x);
+		collisionXCorrection(ent, col[0], col[2], cur_pos.x, col_pos.x);
 	}
 
 	cur_pos = ent->getPosition();
 
 	if (col[1] != 0 && cur_pos.x + game_scale * sprite_dimensions > col_pos.x || col[3] != 0 && cur_pos.x < col_pos.x ) {
-		collision_y_correction(ent, col[3], col[1], cur_pos.y, col_pos.y);
+		collisionYCorrection(ent, col[3], col[1], cur_pos.y, col_pos.y);
 	}
 	else if (col[0] != 0 && cur_pos.y + game_scale * sprite_dimensions > col_pos.y || col[2] != 0 && cur_pos.y < col_pos.y ) {
-		collision_x_correction(ent, col[0], col[2], cur_pos.x, col_pos.x);
+		collisionXCorrection(ent, col[0], col[2], cur_pos.x, col_pos.x);
 	}
 }
 
@@ -253,7 +280,7 @@ void Game::gameExit() {
 	cur_game_state = GameState::not_running;
 }
 
-void Game::collision_y_correction(Entity *ent, int left_col_dir, int right_col_dir, float ent_y, float col_y) {
+void Game::collisionYCorrection(Entity *ent, int left_col_dir, int right_col_dir, float ent_y, float col_y) {
 	int dir = left_col_dir == 0 ? right_col_dir : left_col_dir;
 	if (dir == -1)
 	{
@@ -266,7 +293,7 @@ void Game::collision_y_correction(Entity *ent, int left_col_dir, int right_col_d
 	ent->move(sf::Vector2f(0.0f, offset));
 }
 
-void Game::collision_x_correction(Entity *ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x) {
+void Game::collisionXCorrection(Entity *ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x) {
 	int dir = top_col_dir == 0 ? bottom_col_dir : top_col_dir;
 	
 	float offset = dir == 1 ? (col_x - ent_x) : (col_x - ent_x) - game_scale * sprite_dimensions;
@@ -275,8 +302,81 @@ void Game::collision_x_correction(Entity *ent, int top_col_dir, int bottom_col_d
 	ent->move(sf::Vector2f(offset, 0.0f));
 }
 
-void Game::shuffleEnemies() {
-	std::vector<sf::Vector2i> spawns;
+void Game::weaponCollisions() {
+
+	std::vector<sf::Sprite>* weapon_sprites = cur_weapon->getSpritesForCollision();
+
+	for (int i = 0; i < weapon_sprites->size(); i++) {
+
+		float angle = weapon_sprites->at(i).getRotation() * 3.14 / 180;
+
+		std::vector<sf::Vector2f> collision_points;
+
+		// using x' = xcos(theta) - ysin(theta), y' = ycos(theta) + xsin(theta)
+		float right_relative_to_origin = weapon_sprites->at(i).getTextureRect().width * game_scale / 2;
+		sf::Vector2f right_rotated(right_relative_to_origin * cos(angle), right_relative_to_origin * sin(angle));
+
+		float bottom_relative_to_origin = weapon_sprites->at(i).getTextureRect().height * game_scale / 2;
+		sf::Vector2f bottom_rotated( - bottom_relative_to_origin * sin(angle), bottom_relative_to_origin * cos(angle));
+
+		collision_points.push_back(right_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back(-right_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back(bottom_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back(-bottom_rotated + weapon_sprites->at(i).getPosition());
+
+		collision_points.push_back(right_rotated + bottom_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back( - right_rotated - bottom_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back(right_rotated - bottom_rotated + weapon_sprites->at(i).getPosition());
+		collision_points.push_back(- right_rotated + bottom_rotated + weapon_sprites->at(i).getPosition());
+
+		for (auto& e : enemies) {
+			sf::IntRect hitbox = e->getHitbox();
+			for (int i = 0; i < 8; i++) {
+				if (hitbox.contains((int)collision_points[i].x, (int)collision_points[i].y)) {
+					std::cout << "Arrow hit enemy!" << std::endl;
+					e->takeDamage(cur_weapon->getDamage());
+
+					int old_size = enemies.size();
+
+					enemies.erase(std::remove_if(enemies.begin(), enemies.end(), 
+						[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
+					
+					if (old_size != enemies.size()) {
+						std::cout << "An enemy was defeated!" << std::endl;
+					}
+
+					cur_weapon->reset();
+					cur_weapon = nullptr;
+					return;
+				}
+			}
+		}
+
+		for (int i = 0; i < 8; i++) {
+			if (collision_points[i].x < 0 || collision_points[i].y >= level.get()->getLevelDim().y * game_scale * sprite_dimensions 
+				|| collision_points[i].x >= level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
+				std::cout << "Arrow out of the map boundry!" << std::endl;
+				cur_weapon->reset();
+				cur_weapon = nullptr;
+				return;
+			}
+
+			sf::Vector2i collision_to_grid(collision_points[i].x / (game_scale * sprite_dimensions), 
+				collision_points[i].y / (game_scale * sprite_dimensions));
+
+			if (level.get()->getTileType(collision_to_grid)) {
+				std::cout << "Arrow hit a solid tile!" << std::endl;
+				cur_weapon->reset();
+				cur_weapon = nullptr;
+				return;
+			}
+		}
+	}
+}
+
+void Game::shuffleEnemies()
+{
+    std::vector<sf::Vector2i> spawns;
 
 	for (auto& i : enemies) {
 		sf::Vector2i spawn_grid_pos;
