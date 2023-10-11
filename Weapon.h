@@ -17,12 +17,14 @@ protected:
     float game_scale = 1.0f;
 public:
     Weapon(int damage, int gold_cost, std::string name, float game_scale);
-    virtual void commenceAttack(float initial_angle) = 0;
+    virtual void commenceAttack() = 0;
     virtual void update(sf::Vector2f mouse_pos) = 0;
     virtual void render(sf::RenderWindow* win) = 0;
     virtual void getSpritesForCollision() = 0;
+    virtual void reset() = 0;
 
     std::string getName();
+    bool isAttacking();
     virtual void drawWeapon(sf::Vector2f centre_pos) = 0;
     float calculateAngle(sf::Vector2f mouse_pos, sf::Vector2f sprite_pos) const;
 };

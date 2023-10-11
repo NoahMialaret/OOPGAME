@@ -5,10 +5,14 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos) {
+void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, bool mouse_button, sf::Vector2f mouse_pos) {
 
 	if (cur_weapon != nullptr)
 	{
+		if (mouse_button && !cur_weapon->isAttacking())
+		{
+			cur_weapon->commenceAttack();
+		}
 		cur_weapon->update(mouse_pos);
 		return;
 	}
@@ -107,7 +111,13 @@ void Player::drawWeapon(int index) {
 }
 
 void Player::putAwayWeapon() {
+	if (cur_weapon == nullptr)
+	{
+		std::cout << "Player is not holding a weapon!";
+		return;
+	}
 	std::cout << "Putting away the player's weapon." << std::endl;
+	cur_weapon->reset();
 	cur_weapon = nullptr;
 }
 

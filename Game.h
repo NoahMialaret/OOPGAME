@@ -50,6 +50,7 @@ private:
 	bool is_d_pressed = false;
 	bool is_a_pressed = false;
 	bool is_space_pressed = false;
+	bool is_mouse_pressed = false;
 
 	float game_scale = 4.0f;			// The scale which the game is rendered as
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites

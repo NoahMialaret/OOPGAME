@@ -56,6 +56,22 @@ void Game::handleEvents() {
 				break;
 			}
 
+			case sf::Event::MouseButtonPressed:
+				switch (event.mouseButton.button) {
+					case sf::Mouse::Left:
+						is_mouse_pressed = true;
+						break;
+				}
+				break;
+				
+			case sf::Event::MouseButtonReleased:
+				switch (event.mouseButton.button) {
+					case sf::Mouse::Left:
+						is_mouse_pressed = false;
+						break;
+				}
+				break;
+
 			case sf::Event::KeyPressed:
 				//std::cout << "Key press event called." << std::endl;
 
@@ -121,7 +137,7 @@ void Game::update() {
 
 
 	sf::Vector2f prev_pos = player->getPosition();
-	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
+	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, is_mouse_pressed, mouse_sprite.getPosition());
 	handleCollision(player, prev_pos);
 
 	updateMainView();

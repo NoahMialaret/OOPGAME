@@ -12,6 +12,11 @@ std::string Weapon::getName() {
     return name;
 }
 
+bool Weapon::isAttacking()
+{
+    return is_attacking;
+}
+
 float Weapon::calculateAngle(sf::Vector2f mouse_pos, sf::Vector2f sprite_pos) const {
     float x_dif = mouse_pos.x - sprite_pos.x;
     float y_dif = mouse_pos.y - sprite_pos.y;
