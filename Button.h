@@ -9,13 +9,21 @@ class Button {
         Sprite sprite;
         bool clicked;
 
+        int corner_x;
+        int corner_y;
+
+        int width;
+        int length;
+
     public:
-        Button(Texture tex);
+        Button(Texture* tex, int corner_x, int corner_y, int width, int length);
 
         bool get_clicked();
         void set_clicked(bool clicked);
 
-        bool checkClicked();
+        bool checkClicked(Vector2i position);
+
+        void draw(RenderWindow* win);
 
 
 
