@@ -31,6 +31,10 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test);
 
+	Weapon* test1 = new MultiBow(game_scale);
+
+	player->giveWeapon(test1);
+
 	for (int i = 0; i < 8; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -111,6 +115,9 @@ void Game::handleEvents() {
 					case sf::Keyboard::Num1:
 						cur_weapon = player->getWeapon(0);
 						break;
+					case sf::Keyboard::Num2:
+						cur_weapon = player->getWeapon(1);
+						break;
 				}
 				break;
 				
@@ -176,12 +183,13 @@ void Game::render() {
 
 	player->render(&window);
 
-	window.draw(mouse_sprite);
 
 	if (cur_weapon != nullptr)
 	{
 		cur_weapon->render(&window);
 	}
+
+	window.draw(mouse_sprite);
 
 	window.display();	
 }
@@ -347,6 +355,7 @@ void Game::weaponCollisions() {
 
 					cur_weapon->reset();
 					cur_weapon = nullptr;
+					shuffleEnemies();
 					return;
 				}
 			}
@@ -358,6 +367,7 @@ void Game::weaponCollisions() {
 				std::cout << "Arrow out of the map boundry!" << std::endl;
 				cur_weapon->reset();
 				cur_weapon = nullptr;
+				shuffleEnemies();
 				return;
 			}
 
@@ -368,6 +378,7 @@ void Game::weaponCollisions() {
 				std::cout << "Arrow hit a solid tile!" << std::endl;
 				cur_weapon->reset();
 				cur_weapon = nullptr;
+				shuffleEnemies();
 				return;
 			}
 		}

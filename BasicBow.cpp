@@ -53,11 +53,11 @@ void BasicBow::updateWeapon(sf::Vector2f mouse_pos) {
 }
 
 void BasicBow::updateAttack() {
-        arrow_velocities[0].y += 0.7;
-        arrow->move(arrow_velocities[0]);
+    arrow_velocities[0].y += 0.7;
+    arrow->move(arrow_velocities[0]);
 
-        float angle = calculateAngle(arrow_velocities[0], sf::Vector2f(0.0f, 0.0f));
-        arrow->setRotation(angle);
+    float angle = calculateAngle(arrow_velocities[0], sf::Vector2f(0.0f, 0.0f));
+    arrow->setRotation(angle);
 }
 
 void BasicBow::reset() {

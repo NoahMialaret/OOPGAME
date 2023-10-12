@@ -13,6 +13,7 @@
 #include "Weapon.h"
 #include "Bow.h"
 #include "BasicBow.h"
+#include "MultiBow.h"
 
 #include <algorithm>
 #include <iostream>
