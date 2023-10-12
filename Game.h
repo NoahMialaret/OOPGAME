@@ -73,7 +73,8 @@ public:
 
 	Game::GameState getCurGameState() const; //Returns isRunning
 
-	void startGameplay(Button* play_button);
+	int mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text);
+	void shop();
 
 private:
 	void enableStandardPlay();

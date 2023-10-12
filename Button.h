@@ -25,8 +25,6 @@ class Button {
 
         void draw(RenderWindow* win);
 
-
-
 };
 
 #endif
