@@ -35,6 +35,10 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test1);
 
+	Weapon* test2 = new CrossBow(game_scale);
+
+	player->giveWeapon(test2);
+
 	for (int i = 0; i < 8; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -117,6 +121,9 @@ void Game::handleEvents() {
 						break;
 					case sf::Keyboard::Num2:
 						cur_weapon = player->getWeapon(1);
+						break;
+					case sf::Keyboard::Num3:
+						cur_weapon = player->getWeapon(2);
 						break;
 				}
 				break;

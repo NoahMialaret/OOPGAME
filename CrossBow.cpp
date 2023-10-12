@@ -1,11 +1,11 @@
-#include "BasicBow.h"
+#include "CrossBow.h"
 
-BasicBow::BasicBow(float game_scale)
+CrossBow::CrossBow(float game_scale)
     :
-    Bow(25.0f, 1, 100, "Basic Bow", game_scale)
+    Bow(25.0f, 1, 100, "CrossBow", game_scale)
 {    
-    if (!bow_texture.loadFromFile("art/BasicBow.png")) {
-		std::cout << "BasicBow texture could not be loaded!" << std::endl;
+    if (!bow_texture.loadFromFile("art/CrossBow.png")) {
+		std::cout << "CrossBow texture could not be loaded!" << std::endl;
 	}
 
 	bow_sprite.setTexture(bow_texture, true);
@@ -37,7 +37,7 @@ BasicBow::BasicBow(float game_scale)
     sprite_active.push_back(false);
 }
 
-void BasicBow::commenceAttack() {
+void CrossBow::commenceAttack() {
 
     arrow->setPosition(bow_sprite.getPosition());
 
@@ -48,18 +48,18 @@ void BasicBow::commenceAttack() {
     is_attacking = true;
 }
 
-void BasicBow::updateWeapon(sf::Vector2f mouse_pos) {
+void CrossBow::updateWeapon(sf::Vector2f mouse_pos) {
     bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
 }
 
-void BasicBow::updateAttack() {
-    arrow_velocity->y += 0.7;
+void CrossBow::updateAttack() {
+    arrow_velocity->y += 0.2;
     arrow->move(*arrow_velocity);
 
     float angle = calculateAngle(*arrow_velocity, sf::Vector2f(0.0f, 0.0f));
     arrow->setRotation(angle);
 }
 
-void BasicBow::reset() {
+void CrossBow::reset() {
     is_attacking = false;
 }
