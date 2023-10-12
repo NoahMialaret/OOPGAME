@@ -16,11 +16,12 @@ protected:
     std::string name;
     bool is_attacking = false;
     float game_scale = 1.0f;
+    sf::Vector2f centre_pos;
 public:
     Weapon(int damage, int gold_cost, std::string name, float game_scale);
     virtual void commenceAttack() = 0;
     virtual void updateWeapon(sf::Vector2f mouse_pos) = 0;
-    virtual void updateAttack() = 0;
+    virtual bool updateAttack() = 0;
     virtual void render(sf::RenderWindow* win) = 0;
     virtual void reset() = 0;
 
@@ -28,8 +29,9 @@ public:
     std::string getName();
     int getDamage() const;
     bool isAttacking();
-    virtual void drawWeapon(sf::Vector2f centre_pos) = 0;
+    void setCentrePosition(sf::Vector2f new_centre_pos);
     float calculateAngle(sf::Vector2f mouse_pos, sf::Vector2f sprite_pos) const;
+    sf::Vector2f calculateUnitVector(float angle) const;
 };
 
 #endif

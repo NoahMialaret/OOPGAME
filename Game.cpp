@@ -39,6 +39,10 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test2);
 
+	Weapon* test3 = new BroardSword(game_scale);
+
+	player->giveWeapon(test3);
+
 	for (int i = 0; i < 8; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -117,13 +121,28 @@ void Game::handleEvents() {
 						break;
 
 					case sf::Keyboard::Num1:
+						if (cur_weapon != nullptr) {
+							cur_weapon->reset();
+						}
 						cur_weapon = player->getWeapon(0);
 						break;
 					case sf::Keyboard::Num2:
+						if (cur_weapon != nullptr) {
+							cur_weapon->reset();
+						}
 						cur_weapon = player->getWeapon(1);
 						break;
 					case sf::Keyboard::Num3:
+						if (cur_weapon != nullptr) {
+							cur_weapon->reset();
+						}
 						cur_weapon = player->getWeapon(2);
+						break;
+					case sf::Keyboard::Num4:
+						if (cur_weapon != nullptr) {
+							cur_weapon->reset();
+						}
+						cur_weapon = player->getWeapon(3);
 						break;
 				}
 				break;
@@ -171,8 +190,13 @@ void Game::update() {
 			}
 		}
 		else { // Weapon is attacking
-			cur_weapon->updateAttack();
-			weaponCollisions();
+			if (cur_weapon->updateAttack()) {
+				cur_weapon = nullptr;
+				shuffleEnemies();;
+			}
+			else {
+				weaponCollisions();
+			}
 		}
 	}
 
@@ -348,7 +372,7 @@ void Game::weaponCollisions() {
 			sf::IntRect hitbox = e->getHitbox();
 			for (int i = 0; i < 8; i++) {
 				if (hitbox.contains((int)collision_points[i].x, (int)collision_points[i].y)) {
-					std::cout << "Arrow hit enemy!" << std::endl;
+					std::cout << "Weapon hit an enemy!" << std::endl;
 					e->takeDamage(cur_weapon->getDamage());
 
 					int old_size = enemies.size();
@@ -371,7 +395,7 @@ void Game::weaponCollisions() {
 		for (int i = 0; i < 8; i++) {
 			if (collision_points[i].x < 0 || collision_points[i].y >= level.get()->getLevelDim().y * game_scale * sprite_dimensions 
 				|| collision_points[i].x >= level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
-				std::cout << "Arrow out of the map boundry!" << std::endl;
+				std::cout << "Weapon is out of the map boundry!" << std::endl;
 				cur_weapon->reset();
 				cur_weapon = nullptr;
 				shuffleEnemies();
@@ -382,7 +406,7 @@ void Game::weaponCollisions() {
 				collision_points[i].y / (game_scale * sprite_dimensions));
 
 			if (level.get()->getTileType(collision_to_grid)) {
-				std::cout << "Arrow hit a solid tile!" << std::endl;
+				std::cout << "Weapon hit a solid tile!" << std::endl;
 				cur_weapon->reset();
 				cur_weapon = nullptr;
 				shuffleEnemies();

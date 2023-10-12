@@ -7,8 +7,7 @@ class MultiBow : public Bow {
 public:
     MultiBow(float game_scale);
     void commenceAttack() override;
-    void updateWeapon(sf::Vector2f mouse_pos) override;
-    void updateAttack() override;
+    bool updateAttack() override;
 
     void reset() override;
 };

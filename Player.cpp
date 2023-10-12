@@ -89,7 +89,7 @@ Weapon* Player::getWeapon(int index) {
 		return weapons[0];
 	}
 
-	weapons[index]->drawWeapon(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
+	weapons[index]->setCentrePosition(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
 		sprite.getPosition().y + sprite.getScale().y * (float)sprite.getTextureRect().height / 2));
 
 	std::cout << "Weapon at " << index << " drawn! (" << weapons[index]->getName() << ")" << std::endl;

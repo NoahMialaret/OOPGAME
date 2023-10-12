@@ -12,9 +12,7 @@ BasicBow::BasicBow(float game_scale)
 	bow_sprite.setScale(sf::Vector2f(game_scale, game_scale));
     
     sf::Vector2f centre((float)bow_sprite.getTextureRect().width / 2, 
-        (float)bow_sprite.getTextureRect().height / 2 + 8.5f);
-
-    std::cout << centre.x << " - " << centre.y << std::endl;
+        (float)bow_sprite.getTextureRect().height / 2);
 
     bow_sprite.setOrigin(centre);
 
@@ -41,23 +39,21 @@ void BasicBow::commenceAttack() {
 
     arrow->setPosition(bow_sprite.getPosition());
 
-    *arrow_velocity = calculateArrowVelocity(bow_sprite.getRotation());
+    *arrow_velocity = calculateUnitVector(bow_sprite.getRotation()) * intial_arrow_speed;
     
     sprite_active[0] = true;
 
     is_attacking = true;
 }
 
-void BasicBow::updateWeapon(sf::Vector2f mouse_pos) {
-    bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
-}
-
-void BasicBow::updateAttack() {
+bool BasicBow::updateAttack() {
     arrow_velocity->y += 0.7;
     arrow->move(*arrow_velocity);
 
     float angle = calculateAngle(*arrow_velocity, sf::Vector2f(0.0f, 0.0f));
     arrow->setRotation(angle);
+
+    return 0;
 }
 
 void BasicBow::reset() {

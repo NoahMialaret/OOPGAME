@@ -12,7 +12,7 @@ MultiBow::MultiBow(float game_scale)
 	bow_sprite.setScale(sf::Vector2f(game_scale, game_scale));
     
     sf::Vector2f centre((float)bow_sprite.getTextureRect().width / 2, 
-        (float)bow_sprite.getTextureRect().height / 2 + 8.5f);
+        (float)bow_sprite.getTextureRect().height / 2);
 
     std::cout << centre.x << " - " << centre.y << std::endl;
 
@@ -50,7 +50,8 @@ void MultiBow::commenceAttack() {
             angle -= 360.0f;
         }
 
-        arrow_velocities[i] = calculateArrowVelocity(angle);
+        arrow_velocities[i] = calculateUnitVector(angle) * intial_arrow_speed;
+
         angle += spread;
         sprite_active[i] = true;
     }
@@ -58,11 +59,7 @@ void MultiBow::commenceAttack() {
     is_attacking = true;
 }
 
-void MultiBow::updateWeapon(sf::Vector2f mouse_pos) {
-    bow_sprite.setRotation(calculateAngle(mouse_pos, bow_sprite.getPosition()));
-}
-
-void MultiBow::updateAttack() {
+bool MultiBow::updateAttack() {
     for (int i = 0; i < sprites.size(); i++) {
         arrow_velocities[i].y += 0.7;
         sprites[i].move(arrow_velocities[i]);
@@ -70,6 +67,8 @@ void MultiBow::updateAttack() {
         float angle = calculateAngle(arrow_velocities[i], sf::Vector2f(0.0f, 0.0f));
         sprites[i].setRotation(angle);
     }
+
+    return 0;
 }
 
 void MultiBow::reset() {
