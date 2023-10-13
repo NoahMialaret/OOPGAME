@@ -79,3 +79,11 @@ sf::Vector2f Weapon::calculateUnitVector(float angle) const {
 
     return unit_vector;
 }
+
+void Weapon::setInactive(int index) {
+    sprite_active[index] = false;
+}
+
+bool Weapon::isActive(int index) {
+    return sprite_active[index];
+}

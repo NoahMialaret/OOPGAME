@@ -32,6 +32,8 @@ public:
     void setCentrePosition(sf::Vector2f new_centre_pos);
     float calculateAngle(sf::Vector2f mouse_pos, sf::Vector2f sprite_pos) const;
     sf::Vector2f calculateUnitVector(float angle) const;
+    void setInactive(int index);
+    bool isActive(int index);
 };
 
 #endif

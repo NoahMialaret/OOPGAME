@@ -18,11 +18,11 @@ void Bow::updateWeapon(sf::Vector2f mouse_pos) {
 }
 
 void Bow::render(sf::RenderWindow *win) {
-    if (is_attacking)
-    {
-        for (auto& arrow : sprites)
-        {
-            win->draw(arrow);
+    if (is_attacking) {
+        for (int i = 0; i < sprites.size(); i++) {
+            if (sprite_active[i]) {
+                win->draw(sprites[i]);
+            }
         }
     }
 

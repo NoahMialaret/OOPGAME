@@ -43,7 +43,7 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test3);
 
-	for (int i = 0; i < 8; i++)	{
+	for (int i = 0; i < 20; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
 	shuffleEnemies();
@@ -110,10 +110,13 @@ void Game::handleEvents() {
 						break;
 
 					case sf::Keyboard::Num0:
-						if (cur_weapon == nullptr)
-						{
+						if (cur_weapon == nullptr) {
 							std::cout << "No weapon is being used!";
-							continue;;
+							continue;
+						}
+						else if (cur_weapon->isAttacking()) {
+							std::cout << "Can't put away weapon, it is currently attacking!" << std::endl;
+							continue;
 						}
 						std::cout << "Putting away the weapon." << std::endl;
 						cur_weapon->reset();
@@ -180,6 +183,11 @@ void Game::update() {
 		sf::Vector2f prev_pos = player->getPosition();
 		player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
 		handleCollision(player, prev_pos);
+
+		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+			std::cout << "Player fell into a pit! Reseting player." << std::endl;
+			player->reset();
+		}
 	}
 
 	if (cur_weapon != nullptr) {
@@ -191,8 +199,9 @@ void Game::update() {
 		}
 		else { // Weapon is attacking
 			if (cur_weapon->updateAttack()) {
+				cur_weapon->reset();
 				cur_weapon = nullptr;
-				shuffleEnemies();;
+				shuffleEnemies();
 			}
 			else {
 				weaponCollisions();
@@ -346,6 +355,9 @@ void Game::weaponCollisions() {
 	std::vector<sf::Sprite>* weapon_sprites = cur_weapon->getSpritesForCollision();
 
 	for (int i = 0; i < weapon_sprites->size(); i++) {
+		if (!cur_weapon->isActive(i)) {
+			continue;
+		}
 
 		float angle = weapon_sprites->at(i).getRotation() * 3.14 / 180;
 
@@ -370,49 +382,42 @@ void Game::weaponCollisions() {
 
 		for (auto& e : enemies) {
 			sf::IntRect hitbox = e->getHitbox();
-			for (int i = 0; i < 8; i++) {
-				if (hitbox.contains((int)collision_points[i].x, (int)collision_points[i].y)) {
+			for (int t = 0; t < 8; t++) {
+				if (hitbox.contains((int)collision_points[t].x, (int)collision_points[t].y)) {
 					std::cout << "Weapon hit an enemy!" << std::endl;
 					e->takeDamage(cur_weapon->getDamage());
-
-					int old_size = enemies.size();
-
-					enemies.erase(std::remove_if(enemies.begin(), enemies.end(), 
-						[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
-					
-					if (old_size != enemies.size()) {
-						std::cout << "An enemy was defeated!" << std::endl;
-					}
-
-					cur_weapon->reset();
-					cur_weapon = nullptr;
-					shuffleEnemies();
-					return;
+					cur_weapon->setInactive(i);
+					break;
 				}
 			}
 		}
 
-		for (int i = 0; i < 8; i++) {
-			if (collision_points[i].x < 0 || collision_points[i].y >= level.get()->getLevelDim().y * game_scale * sprite_dimensions 
-				|| collision_points[i].x >= level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
+		for (int t = 0; t < 8; t++) {
+			if (collision_points[t].x < 0 || collision_points[t].y >= level.get()->getLevelDim().y * game_scale * sprite_dimensions 
+				|| collision_points[t].x >= level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
 				std::cout << "Weapon is out of the map boundry!" << std::endl;
-				cur_weapon->reset();
-				cur_weapon = nullptr;
-				shuffleEnemies();
-				return;
+				cur_weapon->setInactive(i);
+				break;
 			}
 
-			sf::Vector2i collision_to_grid(collision_points[i].x / (game_scale * sprite_dimensions), 
-				collision_points[i].y / (game_scale * sprite_dimensions));
+			sf::Vector2i collision_to_grid(collision_points[t].x / (game_scale * sprite_dimensions), 
+				collision_points[t].y / (game_scale * sprite_dimensions));
 
 			if (level.get()->getTileType(collision_to_grid)) {
 				std::cout << "Weapon hit a solid tile!" << std::endl;
-				cur_weapon->reset();
-				cur_weapon = nullptr;
-				shuffleEnemies();
-				return;
+				cur_weapon->setInactive(i);
+				break;
 			}
 		}
+	}
+
+	int old_size = enemies.size();
+
+	enemies.erase(std::remove_if(enemies.begin(), enemies.end(), 
+		[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
+	
+	if (old_size != enemies.size()) {
+		std::cout << old_size - enemies.size() << " enemy(ies) was defeated!" << std::endl;
 	}
 }
 

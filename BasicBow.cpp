@@ -47,13 +47,18 @@ void BasicBow::commenceAttack() {
 }
 
 bool BasicBow::updateAttack() {
+
+    if (!sprite_active[0]) {
+        return true;
+    }
+
     arrow_velocity->y += 0.7;
     arrow->move(*arrow_velocity);
 
     float angle = calculateAngle(*arrow_velocity, sf::Vector2f(0.0f, 0.0f));
     arrow->setRotation(angle);
 
-    return 0;
+    return false;
 }
 
 void BasicBow::reset() {
