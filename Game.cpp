@@ -47,6 +47,10 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test4);
 
+	Weapon* test5 = new ShortSword(game_scale);
+
+	player->giveWeapon(test5);
+
 	for (int i = 0; i < 20; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -156,6 +160,12 @@ void Game::handleEvents() {
 							cur_weapon->reset();
 						}
 						cur_weapon = player->getWeapon(4);
+						break;
+					case sf::Keyboard::Num6:
+						if (cur_weapon != nullptr) {
+							cur_weapon->reset();
+						}
+						cur_weapon = player->getWeapon(5);
 						break;
 				}
 				break;

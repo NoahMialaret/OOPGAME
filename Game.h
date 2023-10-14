@@ -17,6 +17,7 @@
 #include "CrossBow.h"
 #include "BroardSword.h"
 #include "Daggers.h"
+#include "ShortSword.h"
 
 #include <algorithm>
 #include <iostream>

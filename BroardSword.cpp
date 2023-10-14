@@ -2,7 +2,7 @@
 
 BroardSword::BroardSword(float game_scale)
     :
-    Melee(90.0f, 1, 100, "BroardSword", game_scale)
+    Melee(90.0f, 2, 100, "BroardSword", game_scale)
 {    
     sprites.push_back(sf::Sprite(texture));
 
