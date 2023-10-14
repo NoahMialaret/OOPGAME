@@ -16,6 +16,7 @@
 #include "MultiBow.h"
 #include "CrossBow.h"
 #include "BroardSword.h"
+#include "Daggers.h"
 
 #include <algorithm>
 #include <iostream>

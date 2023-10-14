@@ -12,6 +12,7 @@ Melee::Melee(float swing_length, int damage, int gold_cost, std::string name, fl
 
 void Melee::render(sf::RenderWindow* win) {
     for (auto& s : sprites) {
+        //std::cout << s->getPosition() << std::endl;
         win->draw(s);
     }
 }
