@@ -4,7 +4,9 @@ Game::Game(const char* title)
 	:
     rng(std::random_device()())
 {
-	window.create(sf::VideoMode(800, 600), title);
+	window.create(sf::VideoMode(800, 600), title, sf::Style::Close);
+
+	window.setPosition(sf::Vector2i(100.0f, 100.0f));
 
 	window.setKeyRepeatEnabled(false);
 
@@ -20,12 +22,15 @@ Game::Game(const char* title)
 	mouse_sprite.setTexture(mouse_tex, true);
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
-	std::cout << "Enabling standard play." << std::endl;
-	cur_game_state = GameState::standard_play;
+	std::cout << "Enabling Action Menu play." << std::endl;
+	cur_game_state = GameState::action_menu;
   
 	level = std::make_unique<Level>(game_scale, sprite_dimensions);
   
-	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(0.0f,50.0f));
+	sf::Vector2i spawn_grid_pos = level.get()->getValidSpawnPos(rng);
+	sf::Vector2f spawn_pos(game_scale * sprite_dimensions * spawn_grid_pos.x, game_scale * sprite_dimensions * spawn_grid_pos.y);
+
+	player = new Player("art/TestCharacter.png", game_scale, spawn_pos);
 
 	Weapon* test = new BasicBow(game_scale);
 
@@ -58,6 +63,12 @@ Game::Game(const char* title)
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
 	shuffleEnemies();
+
+	main_ui_list.push_back("Move");
+	main_ui_list.push_back("Weapon");
+	main_ui_list.push_back("Item");
+	main_ui_list.push_back("View Level");
+	main_ui_list.push_back("End Turn");
 }
 
 void Game::handleEvents() {
@@ -71,19 +82,22 @@ void Game::handleEvents() {
 				cur_game_state = GameState::not_running;
 				break;
 
-			case sf::Event::Resized: {
-				std::cout << "Window resize event called." << std::endl;
+			// case sf::Event::Resized: {
+			// 	std::cout << "Window resize event called." << std::endl;
 
-				sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-        		window.setView(sf::View(visibleArea));
-				main_view = window.getDefaultView();
-				break;
-			}
+			// 	sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+        	// 	window.setView(sf::View(visibleArea));
+			// 	main_view = window.getDefaultView();
+			// 	break;
+			// }
 
 			case sf::Event::MouseButtonPressed:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
-						is_mouse_pressed = true;
+						if (!mouse_hold) {
+							is_mouse_pressed = true;
+							mouse_hold = true;
+						}
 						break;
 				}
 				break;
@@ -91,7 +105,7 @@ void Game::handleEvents() {
 			case sf::Event::MouseButtonReleased:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
-						is_mouse_pressed = false;
+						mouse_hold = false;
 						break;
 				}
 				break;
@@ -199,21 +213,6 @@ void Game::update(sf::Clock& clock) {
 		std::cout << "Player is dead, closing game!" << std::endl;
 	}
 
-	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
-		if(counter.update(clock)) {
-			cur_game_state = GameState::action_menu;
-			has_moved = true;
-		}
-	}
-
-	if (is_space_pressed && cur_game_state != GameState::moving) {
-		is_space_pressed = false;
-		cur_game_state = GameState::moving;
-
-		counter = Counter(clock, 9);
-		counter.setSprite(game_scale);
-	}
-
 	for (auto& i : enemies) {
 		sf::Vector2f prev_pos = i->getPosition();
 		i->update(&window);
@@ -240,30 +239,114 @@ void Game::update(sf::Clock& clock) {
 		}
 	}
 
-	if (cur_weapon != nullptr) {
-		if (!cur_weapon->isAttacking()) {
-			cur_weapon->updateWeapon(mouse_sprite.getPosition());
-			if (is_mouse_pressed) {
-				cur_weapon->commenceAttack();
+	updateMainView();
+
+	switch (cur_game_state)
+	{
+	case GameState::moving:
+	case GameState::challenge_mode:
+		if(counter.update(clock)) {
+			cur_game_state = GameState::action_menu;
+			has_moved = true;
+		}
+		break;
+
+	case GameState::attacking:
+		if (cur_weapon != nullptr) {
+			if (!cur_weapon->isAttacking()) {
+				cur_weapon->updateWeapon(mouse_sprite.getPosition());
+				if (is_mouse_pressed) {
+					cur_weapon->commenceAttack();
+				}
+			}
+			else { // Weapon is attacking
+				if (cur_weapon->updateAttack()) {
+					cur_weapon->reset();
+					cur_weapon = nullptr;
+					shuffleEnemies();
+				}
+				else {
+					weaponCollisions();
+				}
 			}
 		}
-		else { // Weapon is attacking
-			if (cur_weapon->updateAttack()) {
-				cur_weapon->reset();
-				cur_weapon = nullptr;
-				shuffleEnemies();
+		break;
+
+	case GameState::enemy_turn:
+		shuffleEnemies();
+		has_moved = false;
+		cur_game_state = GameState::action_menu;
+		break;
+	
+	case GameState::action_menu:
+	{
+		if (ui.isListEmpty() && player->isStill()) {
+			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
+			ui.makeList(main_ui_list, list_position);
+			is_mouse_pressed = false;
+			return;
+		}
+
+		int list_index = ui.update(mouse_sprite.getPosition());
+
+		if (!is_mouse_pressed) {
+			return;
+		}
+
+		switch (list_index)
+		{
+		case -1:
+			std::cout << "Nothing was pressed..." << std::endl;
+			break;
+
+		case 0:
+			if(has_moved) {
+				std::cout << "Can't move, you have already moved this turn!" << std::endl;
 			}
 			else {
-				weaponCollisions();
+				std::cout << "Move selected" << std::endl;
+				cur_game_state = GameState::moving;
+
+				counter = Counter(clock, 5);
+				counter.setSprite(game_scale);
+				ui.resetList();
 			}
+			break;
+
+		case 1:
+			std::cout << "Showing weapons..." << std::endl;
+			break;
+		case 2:
+			std::cout << "showing items..." << std::endl;
+			break;
+		case 3:
+			std::cout << "Entering level viewer..." << std::endl;
+			cur_game_state = GameState::level_viewer;
+			break;
+		case 4:
+			std::cout << "Ending turn..." << std::endl;
+			cur_game_state = GameState::enemy_turn;
+			break;
+		
+		default:
+			break;
 		}
+		break;
 	}
 
-	updateMainView();
+	case GameState::level_viewer:
+		cur_game_state = GameState::action_menu;
+		break;
+
+	default:
+		break;
+	}
+
+	is_mouse_pressed = false;
 }
 
 void Game::render() {
-	window.clear();
+	window.clear(sf::Color(34, 0, 92));
 
 	level.get()->render(&window);
   
@@ -283,7 +366,10 @@ void Game::render() {
 		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
 	}
 
-	ui.render(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
+	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
+	if(cur_game_state == GameState::action_menu) {
+		ui.renderList(&window);
+	}
 
 	window.draw(mouse_sprite);
 
@@ -358,24 +444,6 @@ void Game::clean() {
 
 Game::GameState Game::getCurGameState() const {
 	return cur_game_state;
-}
-
-void Game::enableStandardPlay() {
-	std::cout << "Switching to standard play.\n";
-
-	cur_game_state = GameState::standard_play;
-}
-
-void Game::pause() {
-	std::cout << "Pausing game." << std::endl;
-
-	cur_game_state = GameState::paused;
-}
-
-void Game::unpause() {
-	std::cout << "Unpausing game." << std::endl;
-
-	cur_game_state = GameState::standard_play;
 }
 
 void Game::gameExit() {
@@ -480,6 +548,7 @@ void Game::weaponCollisions() {
 void Game::shuffleEnemies()
 {
     std::vector<sf::Vector2i> spawns;
+	spawns.push_back(sf::Vector2i(player->getPosition().x / (game_scale * sprite_dimensions), player->getPosition().y / (game_scale * sprite_dimensions)));
 
 	for (auto& i : enemies) {
 		sf::Vector2i spawn_grid_pos;

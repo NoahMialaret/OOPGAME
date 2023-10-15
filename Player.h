@@ -40,6 +40,7 @@ public:
     const int* getHealth();
     bool takeDamage(int damage_amount);
     const int* getArrows();
+    bool isStill();
 };
 
 #endif

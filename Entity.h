@@ -26,6 +26,7 @@ public:
     virtual void setVelocity(sf::Vector2f new_vel);
     void move(sf::Vector2f offset);
     void setGrounded(bool is_grounded);
+    bool isGrounded() const;
 
 };
 

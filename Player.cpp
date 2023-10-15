@@ -149,3 +149,8 @@ bool Player::takeDamage(int damage_amount) {
 const int *Player::getArrows() {
     return &arrows;
 }
+
+bool Player::isStill()
+{
+    return velocity.x == 0.0f && velocity.y == 0.0f;
+}

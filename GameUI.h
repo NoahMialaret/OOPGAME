@@ -11,8 +11,6 @@ class GameUI {
 private:
     const int* player_health = nullptr;
     const int* num_arrows = nullptr;
-    std::vector<std::string> list;
-    std::vector<std::string> sub_list;
 
 	sf::Texture heart_tex;
 	sf::Sprite heart_sprite;
@@ -20,17 +18,27 @@ private:
 	sf::Texture arrow_tex;
 	sf::Sprite arrow_sprite;
 
+    std::vector<std::string> list;
+    std::vector<std::string> sub_list;
+
     sf::Font font;
     sf::Text text;
-    sf::Vector2f position;
+    sf::Vector2f list_position;
+    sf::RectangleShape list_background_rect;
+
+    int highlight_index = 0;
+    int clicked_index = 0;
 public:
     GameUI() = default;
     GameUI(const int* player_health, const int* num_arrows);
     void setSprites(float game_scale);
-    void makeList(std::vector<std::string> list);
-    void makeSubList(std::vector<std::string> sub_list);
+    void makeList(std::vector<std::string> new_list, const sf::Vector2f new_position);
+    void makeSubList(std::vector<std::string> new_sub_list);
     int update(sf::Vector2f mouse_pos);
-    void render(sf::RenderWindow* win, sf::Vector2f view_centre);
+    void renderMain(sf::RenderWindow* win, sf::Vector2f view_centre);
+    void renderList(sf::RenderWindow* win);
+    bool isListEmpty();
+    void resetList();
 };
 
 #endif

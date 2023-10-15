@@ -32,11 +32,11 @@ public:
 	enum class GameState {
 		not_running,
 		title,
-		settings,
-		paused,
-		standard_play,
 		action_menu,
 		moving,
+		attacking,
+		level_viewer,
+		enemy_turn,
 		challenge_mode
 	};
 
@@ -65,21 +65,27 @@ private:
 	float game_scale = 4.0f;			// The scale which the game is rendered as
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
+	bool has_moved = false;
+	bool is_player_dead = false;
+
+	bool mouse_hold = false;
+
+	std::vector<std::string> main_ui_list;
+	
 	//Game Objects ----------------------------------------------------- 
 	std::unique_ptr<Level> level = nullptr;
   
 	Player* player;
-	bool has_moved = false;
 
 	Weapon* cur_weapon = nullptr;
 
 	std::vector<Enemy*> enemies;
 
-	bool is_player_dead = false;
 
 	Counter counter;
 
 	GameUI ui;
+
 
 public:
 	Game() = delete;
@@ -97,9 +103,6 @@ public:
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 private:
-	void enableStandardPlay();
-	void pause();
-	void unpause();
 	void gameExit();
 
 	void collisionYCorrection(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);

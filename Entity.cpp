@@ -55,3 +55,8 @@ void Entity::setGrounded(bool _is_grounded)
 {
 	is_grounded = _is_grounded;
 }
+
+bool Entity::isGrounded() const
+{
+    return is_grounded;
+}
