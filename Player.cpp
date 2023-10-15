@@ -5,7 +5,7 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos) {
+void Player::update(bool jump_button, bool left_button, bool right_button) {
 	
     if (!jump_button) {
 		jump_hold = false;
@@ -56,7 +56,28 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	sprite.move(velocity);
 }
 
-void Player::render(sf::RenderWindow* win) const {
+void Player::update() {
+	// Effect of gravity on the player
+	velocity.y += 0.7f;
+
+	if (velocity.x > 0.0f) {
+		velocity.x -= is_grounded ? 0.65f : 0.1f;
+		if (velocity.x < 0.0f) {
+			velocity.x = 0.0f;
+		}
+	}
+	else if (velocity.x < 0.0f) {
+		velocity.x += is_grounded ? 0.65f : 0.1f;
+		if (velocity.x > 0.0f) {
+			velocity.x = 0.0f;
+		}
+	}
+
+	sprite.move(velocity);
+}
+
+void Player::render(sf::RenderWindow *win) const
+{
     win->draw(sprite);
 }
 

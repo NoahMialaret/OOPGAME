@@ -14,7 +14,7 @@ int main()
 		float nextFrameStart = (float)clock.getElapsedTime().asMilliseconds() + (1000.0f / 60.0f);
 
 		game.handleEvents();
-		game.update();
+		game.update(clock);
 		game.render();
 
 		while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);

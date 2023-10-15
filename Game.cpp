@@ -165,8 +165,6 @@ void Game::handleEvents() {
 						if (cur_weapon != nullptr) {
 							cur_weapon->reset();
 						}
-						cur_weapon = player->getWeapon(5);
-						break;
 				}
 				break;
 				
@@ -191,7 +189,21 @@ void Game::handleEvents() {
 	}
 }
 
-void Game::update() {
+void Game::update(sf::Clock& clock) {
+
+	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
+		if(counter.update(clock)) {
+			cur_game_state = GameState::action_menu;
+			has_moved = true;
+		}
+	}
+
+	if (is_space_pressed && cur_game_state != GameState::moving) {
+		is_space_pressed = false;
+		cur_game_state = GameState::moving;
+
+		counter = Counter(clock, 9, game_scale);
+	}
 
 	for (auto& i : enemies) {
 		sf::Vector2f prev_pos = i->getPosition();
@@ -201,7 +213,12 @@ void Game::update() {
 
 	if (cur_weapon == nullptr) {
 		sf::Vector2f prev_pos = player->getPosition();
-		player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
+		if (cur_game_state == GameState::moving) {
+			player->update(is_space_pressed, is_a_pressed, is_d_pressed);
+		}
+		else {
+			player->update();
+		}
 		handleCollision(player, prev_pos);
 
 		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
@@ -247,6 +264,10 @@ void Game::render() {
 	if (cur_weapon != nullptr)
 	{
 		cur_weapon->render(&window);
+	}
+
+	if (cur_game_state == GameState::moving) {
+		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
 	}
 
 	window.draw(mouse_sprite);

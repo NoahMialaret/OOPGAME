@@ -3,8 +3,10 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Counter.h"
 #include "Enemy.h"
 #include "Entity.h"
+#include "GameUI.h"
 #include "Level.h"
 #include "NPC.h"
 #include "Player.h"
@@ -33,6 +35,9 @@ public:
 		settings,
 		paused,
 		standard_play,
+		action_menu,
+		moving,
+		challenge_mode
 	};
 
 private:
@@ -64,9 +69,15 @@ private:
 	std::unique_ptr<Level> level = nullptr;
   
 	Player* player;
+	bool has_moved = false;
+
 	std::vector<Enemy*> enemies;
 
 	Weapon* cur_weapon = nullptr;
+
+	Counter counter;
+
+	GameUI* ui = nullptr;
 
 public:
 	Game() = delete;
@@ -74,7 +85,7 @@ public:
 
 	//Basic gmae loop functions
 	void handleEvents();	 //Handles SFML events
-	void update();			 //Handles game logic
+	void update(sf::Clock& clock);			 //Handles game logic
 	void render();			 //Handles graphics rendering
 
 	void handleCollision(Entity* ent, sf::Vector2f prev_pos);

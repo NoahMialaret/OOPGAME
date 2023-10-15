@@ -23,7 +23,8 @@ protected:
     std::vector<Weapon*> weapons;
 public:
     Player(const char* tex_name, float game_scale, sf::Vector2f pos);
-    void update(const sf::RenderWindow* win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos);
+    void update(bool jump_button, bool left_button, bool right_button);
+    void update();
     void render(sf::RenderWindow* win) const override;
     void setVelocity(sf::Vector2f new_vel) override;
     void reset();
