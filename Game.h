@@ -70,7 +70,6 @@ private:
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
 	bool has_moved = false;
-	bool is_player_dead = false;
 
 	bool mouse_hold = false;
 

@@ -183,7 +183,7 @@ void Game::handleEvents() {
 
 void Game::update(sf::Clock& clock) {
 
-	if (is_player_dead) {
+	if (*player->getHealth() <= 0) {
 		cur_game_state = GameState::not_running;
 		std::cout << "Player is dead, closing game!" << std::endl;
 		return;
@@ -207,12 +207,11 @@ void Game::update(sf::Clock& clock) {
 
 		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
 			std::cout << "Player fell into a pit! Reseting player." << std::endl;
-			if (player->takeDamage(1)) {
-				is_player_dead = true;
-			}
+			player->takeDamage(1);
 			player->reset();
-
-			cur_game_state = GameState::action_menu;
+			is_a_pressed = false;
+			is_d_pressed = false;
+			is_space_pressed = false;
 		}
 	}
 
@@ -311,6 +310,7 @@ void Game::update(sf::Clock& clock) {
 			else {
 				std::cout << "Move selected" << std::endl;
 				cur_game_state = GameState::moving;
+				player->savePosition();
 
 				counter = Counter(clock, 5);
 				counter.setSprite(game_scale);

@@ -53,6 +53,10 @@ void Player::update(bool jump_button, bool left_button, bool right_button) {
 		}
 	}
 
+	if (is_grounded) {
+		saved_position = sprite.getPosition();
+	}
+
 	sprite.move(velocity);
 }
 
@@ -72,6 +76,10 @@ void Player::update() {
 			velocity.x = 0.0f;
 		}
 	}
+	
+	if (is_grounded) {
+		saved_position = sprite.getPosition();
+	}
 
 	sprite.move(velocity);
 }
@@ -90,6 +98,7 @@ void Player::setVelocity(sf::Vector2f new_vel) {
 
 void Player::reset() {
 	velocity = sf::Vector2f(0.0f, 0.0f);
+	sprite.setPosition(saved_position);
 }
 
 void Player::giveWeapon(Weapon* weapon) {
@@ -137,6 +146,10 @@ void Player::clean()
 
 bool Player::isAttackActive() {
     return is_attack_active;
+}
+
+void Player::savePosition() {
+	saved_position = sprite.getPosition();
 }
 
 const int *Player::getHealth() {

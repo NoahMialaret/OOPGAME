@@ -22,6 +22,8 @@ protected:
 
     bool is_attack_active = false;
 
+    sf::Vector2f saved_position;
+
     std::vector<Weapon*> weapons;
 public:
     Player(const char* tex_name, float game_scale, sf::Vector2f pos);
@@ -36,6 +38,7 @@ public:
     std::vector<std::string> getWeaponNames();
     void clean();
     bool isAttackActive();
+    void savePosition();
 
     const int* getHealth();
     bool takeDamage(int damage_amount);
