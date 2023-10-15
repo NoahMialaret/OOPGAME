@@ -122,6 +122,14 @@ void Game::handleEvents() {
 						is_a_pressed = true;
 						break;
 
+					case sf::Keyboard::W:
+						is_w_pressed = true;
+						break;
+
+					case sf::Keyboard::S:
+						is_s_pressed = true;
+						break;
+
 					case sf::Keyboard::Space:
 						is_space_pressed = true;
 						break;
@@ -152,6 +160,14 @@ void Game::handleEvents() {
 						is_a_pressed = false;
 						break;
 
+					case sf::Keyboard::W:
+						is_w_pressed = false;
+						break;
+
+					case sf::Keyboard::S:
+						is_s_pressed = false;
+						break;
+
 					case sf::Keyboard::Space:
 						is_space_pressed = false;
 						break;
@@ -170,6 +186,7 @@ void Game::update(sf::Clock& clock) {
 	if (is_player_dead) {
 		cur_game_state = GameState::not_running;
 		std::cout << "Player is dead, closing game!" << std::endl;
+		return;
 	}
 
 	for (auto& i : enemies) {
@@ -180,7 +197,7 @@ void Game::update(sf::Clock& clock) {
 
 	if (cur_weapon == nullptr) {
 		sf::Vector2f prev_pos = player->getPosition();
-		if (cur_game_state == GameState::moving) {
+		if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
 			player->update(is_space_pressed, is_a_pressed, is_d_pressed);
 		}
 		else {
@@ -199,7 +216,9 @@ void Game::update(sf::Clock& clock) {
 		}
 	}
 
-	updateMainView();
+	if (cur_game_state != GameState::level_viewer) {
+		updateMainView();
+	}
 
 	switch (cur_game_state)
 	{
@@ -330,8 +349,35 @@ void Game::update(sf::Clock& clock) {
 	}
 
 	case GameState::level_viewer:
-		cur_game_state = GameState::action_menu;
+	{
+		if (is_escape_pressed) {
+			ui.resetList();
+			cur_game_state = GameState::action_menu;
+		}
+		float speed = 8.0f;
+		sf::Vector2f move( is_d_pressed * speed - is_a_pressed * speed, is_s_pressed * speed - is_w_pressed * speed);
+		main_view.move(move);
+
+		if(main_view.getCenter().y - main_view.getSize().y / 2 < - 100.0f) {
+			main_view.setCenter(main_view.getCenter().x, main_view.getSize().y / 2 - 100.0f);
+		}
+		else if (main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+			main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
+		}
+
+		if(main_view.getCenter().x - main_view.getSize().x / 2 < 0.0f) {
+			main_view.setCenter(main_view.getSize().x / 2, main_view.getCenter().y);
+		}
+		else if (main_view.getCenter().x + main_view.getSize().x / 2 > level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
+			main_view.setCenter((level.get()->getLevelDim().x * game_scale * sprite_dimensions)- main_view.getSize().x / 2, main_view.getCenter().y);
+		}
+		
+		window.setView(main_view);
+
+		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+			
 		break;
+	}
 
 	default:
 		break;

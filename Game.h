@@ -60,6 +60,8 @@ private:
 	// Boolean values representing whether a particular button has been pressed
 	bool is_d_pressed = false;
 	bool is_a_pressed = false;
+	bool is_w_pressed = false;
+	bool is_s_pressed = false;
 	bool is_space_pressed = false;
 	bool is_escape_pressed = false;
 	bool is_mouse_pressed = false;
