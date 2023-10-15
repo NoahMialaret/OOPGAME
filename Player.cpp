@@ -127,7 +127,25 @@ void Player::clean()
 	std::cout << "Successfully cleaned Player!" << std::endl;
 }
 
-bool Player::isAttackActive()
-{
+bool Player::isAttackActive() {
     return is_attack_active;
+}
+
+const int *Player::getHealth() {
+    return &health;
+}
+
+bool Player::takeDamage(int damage_amount) {
+    health -= damage_amount;
+
+	std::cout << "player took " << damage_amount << " damage, health: " << health << std::endl;
+
+	if (health <= 0) {
+		return true;
+	}
+	return false;
+}
+
+const int *Player::getArrows() {
+    return &arrows;
 }

@@ -17,6 +17,8 @@ protected:
 	bool jump_hold = false; // Shows whether the jump button has been held after performing a jump 
 
     int health = 5;
+    int max_health = 5;
+    int arrows = 5;
 
     bool is_attack_active = false;
 
@@ -34,6 +36,10 @@ public:
     void putAwayWeapon();
     void clean();
     bool isAttackActive();
+
+    const int* getHealth();
+    bool takeDamage(int damage_amount);
+    const int* getArrows();
 };
 
 #endif

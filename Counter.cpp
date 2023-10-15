@@ -1,6 +1,6 @@
 #include "Counter.h"
 
-Counter::Counter(sf::Clock& clock, int initial_value, float game_scale)
+Counter::Counter(sf::Clock& clock, int initial_value)
     :
     count(initial_value),
     last_update_tick(clock.getElapsedTime().asMilliseconds())
@@ -26,7 +26,9 @@ Counter::Counter(sf::Clock& clock, int initial_value, float game_scale)
 		std::cout << "Counter texture could not be loaded!" << std::endl;
 		return;
 	}
+}
 
+void Counter::setSprite(float game_scale) {
 	numbers_sprite.setScale(sf::Vector2f(game_scale * 2.0f, game_scale * 2.0f));
 
     sprite_rect = sf::IntRect(sf::Vector2i(0,0), sf::Vector2i(5, 7));
@@ -37,9 +39,11 @@ Counter::Counter(sf::Clock& clock, int initial_value, float game_scale)
         (float)numbers_sprite.getTextureRect().height / 2);
 
     numbers_sprite.setOrigin(centre);
+	numbers_sprite.setTexture(numbers_tex);
 }
 
-bool Counter::update(sf::Clock &clock) {
+bool Counter::update(sf::Clock &clock)
+{
 
     while (last_update_tick + 1000 < clock.getElapsedTime().asMilliseconds()) {
         tick();
@@ -55,7 +59,6 @@ bool Counter::update(sf::Clock &clock) {
 }
 
 void Counter::render(sf::RenderWindow* win, sf::Vector2f centre_position) {
-	numbers_sprite.setTexture(numbers_tex);
     numbers_sprite.setPosition(centre_position);
 
     for (int i = 0; i < digits.size(); i++) {

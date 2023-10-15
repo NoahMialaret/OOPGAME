@@ -71,13 +71,15 @@ private:
 	Player* player;
 	bool has_moved = false;
 
+	Weapon* cur_weapon = nullptr;
+
 	std::vector<Enemy*> enemies;
 
-	Weapon* cur_weapon = nullptr;
+	bool is_player_dead = false;
 
 	Counter counter;
 
-	GameUI* ui = nullptr;
+	GameUI ui;
 
 public:
 	Game() = delete;

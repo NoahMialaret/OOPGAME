@@ -51,6 +51,9 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test5);
 
+	ui = GameUI(player->getHealth(), player->getArrows());
+	ui.setSprites(game_scale);
+
 	for (int i = 0; i < 20; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -191,6 +194,11 @@ void Game::handleEvents() {
 
 void Game::update(sf::Clock& clock) {
 
+	if (is_player_dead) {
+		cur_game_state = GameState::not_running;
+		std::cout << "Player is dead, closing game!" << std::endl;
+	}
+
 	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
 		if(counter.update(clock)) {
 			cur_game_state = GameState::action_menu;
@@ -202,7 +210,8 @@ void Game::update(sf::Clock& clock) {
 		is_space_pressed = false;
 		cur_game_state = GameState::moving;
 
-		counter = Counter(clock, 9, game_scale);
+		counter = Counter(clock, 9);
+		counter.setSprite(game_scale);
 	}
 
 	for (auto& i : enemies) {
@@ -223,7 +232,11 @@ void Game::update(sf::Clock& clock) {
 
 		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
 			std::cout << "Player fell into a pit! Reseting player." << std::endl;
+			if (player->takeDamage(1)) {
+				is_player_dead = true;
+			}
 			player->reset();
+			cur_game_state = GameState::action_menu;
 		}
 	}
 
@@ -269,6 +282,8 @@ void Game::render() {
 	if (cur_game_state == GameState::moving) {
 		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
 	}
+
+	ui.render(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
 
 	window.draw(mouse_sprite);
 
