@@ -358,8 +358,8 @@ void Game::update(sf::Clock& clock) {
 		sf::Vector2f move( is_d_pressed * speed - is_a_pressed * speed, is_s_pressed * speed - is_w_pressed * speed);
 		main_view.move(move);
 
-		if(main_view.getCenter().y - main_view.getSize().y / 2 < - 100.0f) {
-			main_view.setCenter(main_view.getCenter().x, main_view.getSize().y / 2 - 100.0f);
+		if(main_view.getCenter().y < 0.0f) {
+			main_view.setCenter(main_view.getCenter().x, 0.0f);
 		}
 		else if (main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
 			main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
