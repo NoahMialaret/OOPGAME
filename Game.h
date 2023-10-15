@@ -34,6 +34,7 @@ public:
 		title,
 		action_menu,
 		moving,
+		weapons_list,
 		attacking,
 		level_viewer,
 		enemy_turn,
@@ -60,6 +61,7 @@ private:
 	bool is_d_pressed = false;
 	bool is_a_pressed = false;
 	bool is_space_pressed = false;
+	bool is_escape_pressed = false;
 	bool is_mouse_pressed = false;
 
 	float game_scale = 4.0f;			// The scale which the game is rendered as

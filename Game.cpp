@@ -32,15 +32,15 @@ Game::Game(const char* title)
 
 	player = new Player("art/TestCharacter.png", game_scale, spawn_pos);
 
-	Weapon* test = new BasicBow(game_scale);
+	Weapon* test = new BasicBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test);
 
-	Weapon* test1 = new MultiBow(game_scale);
+	Weapon* test1 = new MultiBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test1);
 
-	Weapon* test2 = new CrossBow(game_scale);
+	Weapon* test2 = new CrossBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test2);
 
@@ -126,62 +126,17 @@ void Game::handleEvents() {
 						is_space_pressed = true;
 						break;
 
-					case sf::Keyboard::R:
-						player->reset();
-						break;
+					// case sf::Keyboard::R:
+					// 	player->reset();
+					// 	break;
 
-					case sf::Keyboard::LShift:
-						shuffleEnemies();
-						break;
+					// case sf::Keyboard::LShift:
+					// 	shuffleEnemies();
+					// 	break;
 
-					case sf::Keyboard::Num0:
-						if (cur_weapon == nullptr) {
-							std::cout << "No weapon is being used!";
-							continue;
-						}
-						else if (cur_weapon->isAttacking()) {
-							std::cout << "Can't put away weapon, it is currently attacking!" << std::endl;
-							continue;
-						}
-						std::cout << "Putting away the weapon." << std::endl;
-						cur_weapon->reset();
-						cur_weapon = nullptr;
+					case sf::Keyboard::Escape:
+						is_escape_pressed = true;
 						break;
-
-					case sf::Keyboard::Num1:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(0);
-						break;
-					case sf::Keyboard::Num2:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(1);
-						break;
-					case sf::Keyboard::Num3:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(2);
-						break;
-					case sf::Keyboard::Num4:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(3);
-						break;
-					case sf::Keyboard::Num5:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(4);
-						break;
-					case sf::Keyboard::Num6:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
 				}
 				break;
 				
@@ -199,6 +154,10 @@ void Game::handleEvents() {
 
 					case sf::Keyboard::Space:
 						is_space_pressed = false;
+						break;
+
+					case sf::Keyboard::Escape:
+						is_escape_pressed = false;
 						break;
 				}
 				break;
@@ -235,6 +194,7 @@ void Game::update(sf::Clock& clock) {
 				is_player_dead = true;
 			}
 			player->reset();
+
 			cur_game_state = GameState::action_menu;
 		}
 	}
@@ -245,32 +205,58 @@ void Game::update(sf::Clock& clock) {
 	{
 	case GameState::moving:
 	case GameState::challenge_mode:
-		if(counter.update(clock)) {
+		if(is_escape_pressed || counter.update(clock)) {
 			cur_game_state = GameState::action_menu;
 			has_moved = true;
 		}
 		break;
 
 	case GameState::attacking:
-		if (cur_weapon != nullptr) {
-			if (!cur_weapon->isAttacking()) {
-				cur_weapon->updateWeapon(mouse_sprite.getPosition());
-				if (is_mouse_pressed) {
-					cur_weapon->commenceAttack();
-				}
+		if (is_escape_pressed) {
+			if (cur_weapon->isAttacking()) {
+				std::cout << "Can't put away weapon, it is currently attacking!" << std::endl;
+				is_escape_pressed = false;
+				return;
 			}
-			else { // Weapon is attacking
-				if (cur_weapon->updateAttack()) {
-					cur_weapon->reset();
-					cur_weapon = nullptr;
-					shuffleEnemies();
-				}
-				else {
-					weaponCollisions();
-				}
+			std::cout << "Putting away the weapon." << std::endl;
+			cur_weapon->reset();
+			cur_weapon = nullptr;
+			cur_game_state = GameState::weapons_list;
+			is_escape_pressed = false;
+		}
+		else if (!cur_weapon->isAttacking()) {
+			cur_weapon->updateWeapon(mouse_sprite.getPosition());
+			if (is_mouse_pressed) {
+				cur_weapon->commenceAttack();
+			}
+		}
+		else { // Weapon is attacking
+			if (cur_weapon->updateAttack()) {
+				cur_weapon->reset();
+				cur_weapon = nullptr;
+				ui.resetList();
+				cur_game_state = GameState::enemy_turn;
+			}
+			else {
+				weaponCollisions();
 			}
 		}
 		break;
+
+	case GameState::weapons_list:
+	{
+		if (is_escape_pressed) {
+			ui.resetList();
+			cur_game_state = GameState::action_menu;
+		}
+		int list_index = ui.update(mouse_sprite.getPosition());
+
+		if (is_mouse_pressed && list_index != -1) {
+			cur_weapon = player->getWeapon(list_index);
+			cur_game_state = GameState::attacking;
+		}
+		break;
+	}
 
 	case GameState::enemy_turn:
 		shuffleEnemies();
@@ -295,11 +281,11 @@ void Game::update(sf::Clock& clock) {
 
 		switch (list_index)
 		{
-		case -1:
+		case -1: // Nothing
 			std::cout << "Nothing was pressed..." << std::endl;
 			break;
 
-		case 0:
+		case 0: // Move
 			if(has_moved) {
 				std::cout << "Can't move, you have already moved this turn!" << std::endl;
 			}
@@ -313,17 +299,26 @@ void Game::update(sf::Clock& clock) {
 			}
 			break;
 
-		case 1:
+		case 1: // Weapons
+		{
 			std::cout << "Showing weapons..." << std::endl;
+			ui.resetList();
+			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
+			ui.makeList(player->getWeaponNames(), list_position);
+			cur_game_state = GameState::weapons_list;
 			break;
-		case 2:
+		}
+
+		case 2: // Items
 			std::cout << "showing items..." << std::endl;
 			break;
-		case 3:
+
+		case 3: // View Level
 			std::cout << "Entering level viewer..." << std::endl;
 			cur_game_state = GameState::level_viewer;
 			break;
-		case 4:
+
+		case 4: // End Turn
 			std::cout << "Ending turn..." << std::endl;
 			cur_game_state = GameState::enemy_turn;
 			break;
@@ -367,7 +362,8 @@ void Game::render() {
 	}
 
 	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
-	if(cur_game_state == GameState::action_menu) {
+	
+	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list) {
 		ui.renderList(&window);
 	}
 

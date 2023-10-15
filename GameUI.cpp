@@ -44,14 +44,6 @@ void GameUI::makeList(std::vector<std::string> new_list, const sf::Vector2f new_
     list_background_rect.setPosition(list_position.x, 0.0f);
 }
 
-void GameUI::makeSubList(std::vector<std::string> new_sub_list) {
-    if (list.empty()) {
-        std::cout << "Main list is empty, cannot create a sub_list" << std::endl;
-        return;
-    }
-    sub_list = new_sub_list;
-}
-
 int GameUI::update(sf::Vector2f mouse_pos)
 {    
     list_background_rect.setPosition(list_position.x, list_position.y - 4.0f);
@@ -121,6 +113,5 @@ bool GameUI::isListEmpty() {
 
 void GameUI::resetList() {
     list.clear();
-    sub_list.clear();
     list_position = sf::Vector2f(0.0f, 0.0f);
 }

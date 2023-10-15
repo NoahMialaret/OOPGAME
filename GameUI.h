@@ -19,8 +19,6 @@ private:
 	sf::Sprite arrow_sprite;
 
     std::vector<std::string> list;
-    std::vector<std::string> sub_list;
-
     sf::Font font;
     sf::Text text;
     sf::Vector2f list_position;
@@ -33,7 +31,6 @@ public:
     GameUI(const int* player_health, const int* num_arrows);
     void setSprites(float game_scale);
     void makeList(std::vector<std::string> new_list, const sf::Vector2f new_position);
-    void makeSubList(std::vector<std::string> new_sub_list);
     int update(sf::Vector2f mouse_pos);
     void renderMain(sf::RenderWindow* win, sf::Vector2f view_centre);
     void renderList(sf::RenderWindow* win);

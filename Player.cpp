@@ -89,7 +89,6 @@ void Player::setVelocity(sf::Vector2f new_vel) {
 }
 
 void Player::reset() {
-	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
 	velocity = sf::Vector2f(0.0f, 0.0f);
 }
 
@@ -115,6 +114,15 @@ Weapon* Player::getWeapon(int index) {
 
 	std::cout << "Weapon at " << index << " drawn! (" << weapons[index]->getName() << ")" << std::endl;
 	return weapons[index];
+}
+
+std::vector<std::string> Player::getWeaponNames()
+{
+	std::vector<std::string> weapon_names;
+	for (auto& w : weapons) {
+		weapon_names.push_back(w->getName());
+	}
+    return weapon_names;
 }
 
 void Player::clean()
@@ -146,7 +154,8 @@ bool Player::takeDamage(int damage_amount) {
 	return false;
 }
 
-const int *Player::getArrows() {
+int* Player::getArrows() {
+	std::cout << &arrows << std::endl;
     return &arrows;
 }
 

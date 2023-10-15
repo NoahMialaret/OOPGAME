@@ -33,13 +33,13 @@ public:
 
     void giveWeapon(Weapon* weapon);
     Weapon* getWeapon(int index);
-    void putAwayWeapon();
+    std::vector<std::string> getWeaponNames();
     void clean();
     bool isAttackActive();
 
     const int* getHealth();
     bool takeDamage(int damage_amount);
-    const int* getArrows();
+    int* getArrows();
     bool isStill();
 };
 
