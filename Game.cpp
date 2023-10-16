@@ -60,7 +60,7 @@ Game::Game(const char* title, sf::Clock* clock)
 	ui = GameUI(player->getHealth(), player->getArrows());
 	ui.setSprites(game_scale);
 
-	for (int i = 0; i < 3; i++)	{
+	for (int i = 0; i < 10; i++)	{
 		enemies.push_back(new Enemy("art/Enemy.png", game_scale));
 	}
 
