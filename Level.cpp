@@ -18,7 +18,7 @@ Level::Level(float game_scale, float sprite_dim) {
 
 	std::string fileline;
 
-    dim.y = 0;
+    dim.y = -1;
 
     while(std::getline(file, fileline)) {
         dim.y++;
