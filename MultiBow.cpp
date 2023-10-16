@@ -14,8 +14,6 @@ MultiBow::MultiBow(int* player_arrows, float game_scale)
     sf::Vector2f centre((float)bow_sprite.getTextureRect().width / 2, 
         (float)bow_sprite.getTextureRect().height / 2);
 
-    std::cout << centre.x << " - " << centre.y << std::endl;
-
     bow_sprite.setOrigin(centre);
 
     for (int i = 0; i < 5; i++) {

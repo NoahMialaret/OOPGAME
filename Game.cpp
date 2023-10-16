@@ -60,7 +60,7 @@ Game::Game(const char* title, sf::Clock* clock)
 	ui = GameUI(player->getHealth(), player->getArrows());
 	ui.setSprites(game_scale);
 
-	for (int i = 0; i < 20; i++)	{
+	for (int i = 0; i < 8; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
 
@@ -189,38 +189,39 @@ void Game::update() {
 		return;
 	}
 
-	for (auto& i : enemies) {
-		sf::Vector2f prev_pos = i->getPosition();
-		i->update(&window);
-		handleCollision(i, prev_pos);
-	}
 
-	if (cur_weapon == nullptr) {
-		sf::Vector2f prev_pos = player->getPosition();
-
-
-		if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
-			player->update(is_space_pressed, is_a_pressed, is_d_pressed, clock);
+	for (auto& e : enemies) {
+		sf::Vector2f prev_pos = e->getPosition();
+		if (cur_game_state != GameState::enemy_turn || e->isAttacking()) {
+			e->update(clock);
 		}
-		else {
-			player->update(clock);
-		}
-		handleCollision(player, prev_pos);
-		EnemyCollisions();
-
-		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
-			std::cout << "Player fell into a pit! Reseting player." << std::endl;
-			player->takeDamage(1, clock);
-			player->reset();
-			is_a_pressed = false;
-			is_d_pressed = false;
-			is_space_pressed = false;
+		if (cur_game_state != GameState::enemy_turn) {
+			handleCollision(e, prev_pos);
 		}
 	}
+
+
+	sf::Vector2f prev_pos = player->getPosition();
+
+	player->update(is_space_pressed, is_a_pressed, is_d_pressed, clock);
+	
+	handleCollision(player, prev_pos);
+	EnemyCollisions();
+
+	if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+		std::cout << "Player fell into a pit! Reseting player." << std::endl;
+		player->takeDamage(1, clock);
+		player->reset();
+		is_a_pressed = false;
+		is_d_pressed = false;
+		is_space_pressed = false;
+	}
+
 
 	if (cur_game_state != GameState::level_viewer) {
 		updateMainView();
 	}
+
 
 	switch (cur_game_state)
 	{
@@ -234,6 +235,7 @@ void Game::update() {
 		if(is_escape_pressed || counter.update(clock)) {
 			cur_game_state = GameState::action_menu;
 			has_moved = true;
+			player->setControl(false);
 		}
 		break;
 
@@ -262,6 +264,9 @@ void Game::update() {
 				cur_weapon = nullptr;
 				ui.resetList();
 				cur_game_state = GameState::enemy_turn;
+				next_enemy_attack_start = clock->getElapsedTime().asMilliseconds();
+				next_enemy_attack_index = 0;
+				player->setControl(false);
 			}
 			else {
 				weaponCollisions();
@@ -285,10 +290,54 @@ void Game::update() {
 	}
 
 	case GameState::enemy_turn:
-		shuffleEnemies();
-		has_moved = false;
-		cur_game_state = GameState::action_menu;
+	{
+		if (next_enemy_attack_start + 1000 < clock->getElapsedTime().asMilliseconds() && next_enemy_attack_index < enemies.size()) {
+			
+			    std::uniform_int_distribution<int> x_dist(-1, 1);
+    			std::uniform_int_distribution<int> y_dist(-1, 1);
+
+				int x_dir = 0;
+				int y_dir = 0;
+				
+				// Stops enemies from spawning where the player is
+				while(x_dir == 0 && y_dir == 0) {
+					x_dir = x_dist(rng);
+					y_dir = y_dist(rng);
+				}
+
+				float modifier = 1.0f;
+				if (x_dir != 0 && y_dir != 0) {
+					modifier = 0.75f;
+				}
+			
+			enemies[next_enemy_attack_index]->startAttack(player->getPosition() + sf::Vector2f(x_dir * 600.0f * modifier, y_dir * 600.0f * modifier), 
+				sf::Vector2f( - x_dir * 12.0f * modifier, - y_dir * 12.0f * modifier), clock);
+				next_enemy_attack_index++;
+				next_enemy_attack_start += 1000;
+		}
+
+		if(next_enemy_attack_index == enemies.size()) {
+
+			bool is_attack_finished = true;
+
+			for (auto& e : enemies) {
+				if (e->isAttacking()) {
+					is_attack_finished = false;
+					break;
+				}
+			}
+
+			if (is_attack_finished) {
+				player->setControl(false);
+				if (player->isStill()) {
+					shuffleEnemies();
+					has_moved = false;
+					cur_game_state = GameState::action_menu;
+				}
+			}
+		}
 		break;
+	}
 	
 	case GameState::action_menu:
 	{
@@ -323,6 +372,7 @@ void Game::update() {
 				counter = Counter(clock, 5);
 				counter.setSprite(game_scale);
 				ui.resetList();
+				player->setControl(true);
 			}
 			break;
 
@@ -348,6 +398,10 @@ void Game::update() {
 		case 4: // End Turn
 			std::cout << "Ending turn..." << std::endl;
 			cur_game_state = GameState::enemy_turn;
+			next_enemy_attack_start = clock->getElapsedTime().asMilliseconds();
+			next_enemy_attack_index = 0;
+			ui.resetList();
+			player->setControl(true);
 			break;
 		
 		default:
@@ -399,8 +453,10 @@ void Game::render() {
 
 	level.get()->render(&window);
   
-	for (auto& i : enemies) {
-		i->render(&window);
+	for (auto& e : enemies) {
+		if (cur_game_state != GameState::enemy_turn || e->isAttacking()) {
+			e->render(&window);
+		}
 	}
 
 	player->render(&window);
@@ -600,15 +656,19 @@ void Game::EnemyCollisions() {
 	sf::IntRect player_hitbox = player->getHitbox();
 
 	for (auto& e : enemies) {
+		if (cur_game_state == GameState::enemy_turn && !e->isAttacking()) {
+			continue;
+		}
 
 		sf::IntRect hitbox = e->getHitbox();
 		if (hitbox.intersects(player_hitbox)) {
-			std::cout << "Player collided with enemy!" << std::endl;
-			
-			sf::Vector2f knockback((player->getPosition().x - e->getPosition().x) / (game_scale), 
-				(player->getPosition().y - e->getPosition().y) / (game_scale));
 
-			player->setVelocity(knockback);
+			if (!player->isInvincible() || cur_game_state != GameState::enemy_turn) {
+				sf::Vector2f knockback((player->getPosition().x - e->getPosition().x) / (game_scale), 
+					(player->getPosition().y - e->getPosition().y) / (game_scale));
+
+				player->setVelocity(knockback);
+			}
 			player->takeDamage(1, clock);
 			break;
 		}

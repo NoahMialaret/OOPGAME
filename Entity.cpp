@@ -12,8 +12,8 @@ Entity::Entity(const char *tex_name, float game_scale, sf::Vector2f pos) {
     sprite.setPosition(pos);
 }
 
-void Entity::update(const sf::RenderWindow* win) {
-	// Effect of gravity on the enemy
+void Entity::update() {
+	// Effect of gravity on the entity
 	velocity.y += 0.8f;
 
 	sprite.move(velocity);

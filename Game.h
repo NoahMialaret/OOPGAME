@@ -85,6 +85,8 @@ private:
 
 	bool dialogue_active = false;
 
+	int next_enemy_attack_start = 0;
+	int next_enemy_attack_index = 0;
 
 	std::vector<std::string> main_ui_list;
 	

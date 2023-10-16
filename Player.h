@@ -28,10 +28,11 @@ protected:
 
     bool is_invincible = false;
     int invincibilty_start_time = 0;
+
+    bool can_control = false;
 public:
     Player(const char* tex_name, float game_scale, sf::Vector2f pos);
     void update(bool jump_button, bool left_button, bool right_button, sf::Clock* clock);
-    void update(sf::Clock* clock);
     void render(sf::RenderWindow* win) const override;
     void setVelocity(sf::Vector2f new_vel) override;
     void reset();
@@ -47,6 +48,8 @@ public:
     bool takeDamage(int damage_amount, sf::Clock* clock);
     int* getArrows();
     bool isStill();
+    bool isInvincible() const;
+    void setControl(bool control);
 };
 
 #endif
