@@ -5,7 +5,7 @@
 
 class MultiBow : public Bow {
 public:
-    MultiBow(float game_scale);
+    MultiBow(int* player_arrows, float game_scale);
     void commenceAttack() override;
     bool updateAttack() override;
 

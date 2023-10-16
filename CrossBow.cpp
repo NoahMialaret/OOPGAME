@@ -1,8 +1,8 @@
 #include "CrossBow.h"
 
-CrossBow::CrossBow(float game_scale)
+CrossBow::CrossBow(int* player_arrows, float game_scale)
     :
-    Bow(25.0f, 1, 100, "CrossBow", game_scale)
+    Bow(25.0f, 1, 100, "CrossBow", player_arrows, game_scale)
 {    
     if (!bow_texture.loadFromFile("art/CrossBow.png")) {
 		std::cout << "CrossBow texture could not be loaded!" << std::endl;
@@ -38,6 +38,15 @@ CrossBow::CrossBow(float game_scale)
 }
 
 void CrossBow::commenceAttack() {
+
+    if (*player_arrows <= 0) {
+        std::cout << "Can't attack, you have no arrows!" << std::endl;
+        return;
+    }
+    
+    *player_arrows = *player_arrows - 1;
+
+    std::cout << player_arrows << std::endl;
 
     arrow->setPosition(bow_sprite.getPosition());
 

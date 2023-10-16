@@ -8,7 +8,7 @@ private:
     sf::Sprite* arrow = nullptr;
     sf::Vector2f* arrow_velocity = nullptr;
 public:
-    BasicBow(float game_scale);
+    BasicBow(int* player_arrows, float game_scale);
     void commenceAttack() override;
     bool updateAttack() override;
 

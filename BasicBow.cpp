@@ -1,8 +1,8 @@
 #include "BasicBow.h"
 
-BasicBow::BasicBow(float game_scale)
+BasicBow::BasicBow(int* player_arrows, float game_scale)
     :
-    Bow(25.0f, 1, 100, "Basic Bow", game_scale)
+    Bow(25.0f, 1, 100, "Basic Bow", player_arrows, game_scale)
 {    
     if (!bow_texture.loadFromFile("art/BasicBow.png")) {
 		std::cout << "BasicBow texture could not be loaded!" << std::endl;
@@ -36,6 +36,13 @@ BasicBow::BasicBow(float game_scale)
 }
 
 void BasicBow::commenceAttack() {
+
+    if (*player_arrows <= 0) {
+        std::cout << "Can't attack, you have no arrows!" << std::endl;
+        return;
+    }
+
+    *player_arrows = *player_arrows - 1;
 
     arrow->setPosition(bow_sprite.getPosition());
 

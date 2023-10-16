@@ -17,22 +17,33 @@ protected:
 	bool jump_hold = false; // Shows whether the jump button has been held after performing a jump 
 
     int health = 5;
+    int max_health = 5;
+    int arrows = 5;
 
     bool is_attack_active = false;
+
+    sf::Vector2f saved_position;
 
     std::vector<Weapon*> weapons;
 public:
     Player(const char* tex_name, float game_scale, sf::Vector2f pos);
-    void update(const sf::RenderWindow* win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos);
+    void update(bool jump_button, bool left_button, bool right_button);
+    void update();
     void render(sf::RenderWindow* win) const override;
     void setVelocity(sf::Vector2f new_vel) override;
     void reset();
 
     void giveWeapon(Weapon* weapon);
     Weapon* getWeapon(int index);
-    void putAwayWeapon();
+    std::vector<std::string> getWeaponNames();
     void clean();
     bool isAttackActive();
+    void savePosition();
+
+    const int* getHealth();
+    bool takeDamage(int damage_amount);
+    int* getArrows();
+    bool isStill();
 };
 
 #endif

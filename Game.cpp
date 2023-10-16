@@ -4,7 +4,9 @@ Game::Game(const char* title)
 	:
     rng(std::random_device()())
 {
-	window.create(sf::VideoMode(800, 600), title);
+	window.create(sf::VideoMode(800, 600), title, sf::Style::Close);
+
+	window.setPosition(sf::Vector2i(100.0f, 100.0f));
 
 	window.setKeyRepeatEnabled(false);
 
@@ -20,22 +22,25 @@ Game::Game(const char* title)
 	mouse_sprite.setTexture(mouse_tex, true);
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
-	std::cout << "Enabling standard play." << std::endl;
-	cur_game_state = GameState::standard_play;
+	std::cout << "Enabling Action Menu play." << std::endl;
+	cur_game_state = GameState::starting_play;
   
 	level = std::make_unique<Level>(game_scale, sprite_dimensions);
   
-	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(0.0f,50.0f));
+	sf::Vector2i spawn_grid_pos = level.get()->getValidSpawnPos(rng);
+	sf::Vector2f spawn_pos(game_scale * sprite_dimensions * spawn_grid_pos.x, game_scale * sprite_dimensions * spawn_grid_pos.y);
 
-	Weapon* test = new BasicBow(game_scale);
+	player = new Player("art/TestCharacter.png", game_scale, spawn_pos);
+
+	Weapon* test = new BasicBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test);
 
-	Weapon* test1 = new MultiBow(game_scale);
+	Weapon* test1 = new MultiBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test1);
 
-	Weapon* test2 = new CrossBow(game_scale);
+	Weapon* test2 = new CrossBow(player->getArrows(), game_scale);
 
 	player->giveWeapon(test2);
 
@@ -51,10 +56,18 @@ Game::Game(const char* title)
 
 	player->giveWeapon(test5);
 
+	ui = GameUI(player->getHealth(), player->getArrows());
+	ui.setSprites(game_scale);
+
 	for (int i = 0; i < 20; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
-	shuffleEnemies();
+
+	main_ui_list.push_back("Move");
+	main_ui_list.push_back("Weapon");
+	main_ui_list.push_back("Item");
+	main_ui_list.push_back("View Level");
+	main_ui_list.push_back("End Turn");
 }
 
 void Game::handleEvents() {
@@ -68,19 +81,22 @@ void Game::handleEvents() {
 				cur_game_state = GameState::not_running;
 				break;
 
-			case sf::Event::Resized: {
-				std::cout << "Window resize event called." << std::endl;
+			// case sf::Event::Resized: {
+			// 	std::cout << "Window resize event called." << std::endl;
 
-				sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-        		window.setView(sf::View(visibleArea));
-				main_view = window.getDefaultView();
-				break;
-			}
+			// 	sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+        	// 	window.setView(sf::View(visibleArea));
+			// 	main_view = window.getDefaultView();
+			// 	break;
+			// }
 
 			case sf::Event::MouseButtonPressed:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
-						is_mouse_pressed = true;
+						if (!mouse_hold) {
+							is_mouse_pressed = true;
+							mouse_hold = true;
+						}
 						break;
 				}
 				break;
@@ -88,7 +104,7 @@ void Game::handleEvents() {
 			case sf::Event::MouseButtonReleased:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
-						is_mouse_pressed = false;
+						mouse_hold = false;
 						break;
 				}
 				break;
@@ -105,67 +121,28 @@ void Game::handleEvents() {
 						is_a_pressed = true;
 						break;
 
+					case sf::Keyboard::W:
+						is_w_pressed = true;
+						break;
+
+					case sf::Keyboard::S:
+						is_s_pressed = true;
+						break;
+
 					case sf::Keyboard::Space:
 						is_space_pressed = true;
 						break;
 
-					case sf::Keyboard::R:
-						player->reset();
-						break;
+					// case sf::Keyboard::R:
+					// 	player->reset();
+					// 	break;
 
-					case sf::Keyboard::LShift:
-						shuffleEnemies();
-						break;
+					// case sf::Keyboard::LShift:
+					// 	shuffleEnemies();
+					// 	break;
 
-					case sf::Keyboard::Num0:
-						if (cur_weapon == nullptr) {
-							std::cout << "No weapon is being used!";
-							continue;
-						}
-						else if (cur_weapon->isAttacking()) {
-							std::cout << "Can't put away weapon, it is currently attacking!" << std::endl;
-							continue;
-						}
-						std::cout << "Putting away the weapon." << std::endl;
-						cur_weapon->reset();
-						cur_weapon = nullptr;
-						break;
-
-					case sf::Keyboard::Num1:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(0);
-						break;
-					case sf::Keyboard::Num2:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(1);
-						break;
-					case sf::Keyboard::Num3:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(2);
-						break;
-					case sf::Keyboard::Num4:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(3);
-						break;
-					case sf::Keyboard::Num5:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(4);
-						break;
-					case sf::Keyboard::Num6:
-						if (cur_weapon != nullptr) {
-							cur_weapon->reset();
-						}
-						cur_weapon = player->getWeapon(5);
+					case sf::Keyboard::Escape:
+						is_escape_pressed = true;
 						break;
 				}
 				break;
@@ -182,8 +159,20 @@ void Game::handleEvents() {
 						is_a_pressed = false;
 						break;
 
+					case sf::Keyboard::W:
+						is_w_pressed = false;
+						break;
+
+					case sf::Keyboard::S:
+						is_s_pressed = false;
+						break;
+
 					case sf::Keyboard::Space:
 						is_space_pressed = false;
+						break;
+
+					case sf::Keyboard::Escape:
+						is_escape_pressed = false;
 						break;
 				}
 				break;
@@ -191,7 +180,13 @@ void Game::handleEvents() {
 	}
 }
 
-void Game::update() {
+void Game::update(sf::Clock& clock) {
+
+	if (*player->getHealth() <= 0) {
+		cur_game_state = GameState::not_running;
+		std::cout << "Player is dead, closing game!" << std::endl;
+		return;
+	}
 
 	for (auto& i : enemies) {
 		sf::Vector2f prev_pos = i->getPosition();
@@ -201,17 +196,57 @@ void Game::update() {
 
 	if (cur_weapon == nullptr) {
 		sf::Vector2f prev_pos = player->getPosition();
-		player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed, mouse_sprite.getPosition());
+		if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
+			player->update(is_space_pressed, is_a_pressed, is_d_pressed);
+		}
+		else {
+			player->update();
+		}
 		handleCollision(player, prev_pos);
 
 		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
 			std::cout << "Player fell into a pit! Reseting player." << std::endl;
+			player->takeDamage(1);
 			player->reset();
+			is_a_pressed = false;
+			is_d_pressed = false;
+			is_space_pressed = false;
 		}
 	}
 
-	if (cur_weapon != nullptr) {
-		if (!cur_weapon->isAttacking()) {
+	if (cur_game_state != GameState::level_viewer) {
+		updateMainView();
+	}
+
+	switch (cur_game_state)
+	{
+	case GameState::starting_play:
+		shuffleEnemies(clock);
+		cur_game_state = GameState::action_menu;
+		break;
+	
+	case GameState::moving:
+	case GameState::challenge_mode:
+		if(is_escape_pressed || counter.update(clock)) {
+			cur_game_state = GameState::action_menu;
+			has_moved = true;
+		}
+		break;
+
+	case GameState::attacking:
+		if (is_escape_pressed) {
+			if (cur_weapon->isAttacking()) {
+				std::cout << "Can't put away weapon, it is currently attacking!" << std::endl;
+				is_escape_pressed = false;
+				return;
+			}
+			std::cout << "Putting away the weapon." << std::endl;
+			cur_weapon->reset();
+			cur_weapon = nullptr;
+			cur_game_state = GameState::weapons_list;
+			is_escape_pressed = false;
+		}
+		else if (!cur_weapon->isAttacking()) {
 			cur_weapon->updateWeapon(mouse_sprite.getPosition());
 			if (is_mouse_pressed) {
 				cur_weapon->commenceAttack();
@@ -221,19 +256,142 @@ void Game::update() {
 			if (cur_weapon->updateAttack()) {
 				cur_weapon->reset();
 				cur_weapon = nullptr;
-				shuffleEnemies();
+				ui.resetList();
+				cur_game_state = GameState::enemy_turn;
 			}
 			else {
 				weaponCollisions();
 			}
 		}
+		break;
+
+	case GameState::weapons_list:
+	{
+		if (is_escape_pressed) {
+			ui.resetList();
+			cur_game_state = GameState::action_menu;
+		}
+		int list_index = ui.update(mouse_sprite.getPosition());
+
+		if (is_mouse_pressed && list_index != -1) {
+			cur_weapon = player->getWeapon(list_index);
+			cur_game_state = GameState::attacking;
+		}
+		break;
 	}
 
-	updateMainView();
+	case GameState::enemy_turn:
+		shuffleEnemies(clock);
+		has_moved = false;
+		cur_game_state = GameState::action_menu;
+		break;
+	
+	case GameState::action_menu:
+	{
+		if (ui.isListEmpty() && player->isStill()) {
+			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
+			ui.makeList(main_ui_list, list_position);
+			is_mouse_pressed = false;
+			return;
+		}
+
+		int list_index = ui.update(mouse_sprite.getPosition());
+
+		if (!is_mouse_pressed) {
+			return;
+		}
+
+		switch (list_index)
+		{
+		case -1: // Nothing
+			std::cout << "Nothing was pressed..." << std::endl;
+			break;
+
+		case 0: // Move
+			if(has_moved) {
+				std::cout << "Can't move, you have already moved this turn!" << std::endl;
+			}
+			else {
+				std::cout << "Move selected" << std::endl;
+				cur_game_state = GameState::moving;
+				player->savePosition();
+
+				counter = Counter(clock, 5);
+				counter.setSprite(game_scale);
+				ui.resetList();
+			}
+			break;
+
+		case 1: // Weapons
+		{
+			std::cout << "Showing weapons..." << std::endl;
+			ui.resetList();
+			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
+			ui.makeList(player->getWeaponNames(), list_position);
+			cur_game_state = GameState::weapons_list;
+			break;
+		}
+
+		case 2: // Items
+			std::cout << "showing items..." << std::endl;
+			break;
+
+		case 3: // View Level
+			std::cout << "Entering level viewer..." << std::endl;
+			cur_game_state = GameState::level_viewer;
+			break;
+
+		case 4: // End Turn
+			std::cout << "Ending turn..." << std::endl;
+			cur_game_state = GameState::enemy_turn;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	}
+
+	case GameState::level_viewer:
+	{
+		if (is_escape_pressed) {
+			ui.resetList();
+			cur_game_state = GameState::action_menu;
+		}
+		float speed = 8.0f;
+		sf::Vector2f move( is_d_pressed * speed - is_a_pressed * speed, is_s_pressed * speed - is_w_pressed * speed);
+		main_view.move(move);
+
+		if(main_view.getCenter().y < 0.0f) {
+			main_view.setCenter(main_view.getCenter().x, 0.0f);
+		}
+		else if (main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+			main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
+		}
+
+		if(main_view.getCenter().x - main_view.getSize().x / 2 < 0.0f) {
+			main_view.setCenter(main_view.getSize().x / 2, main_view.getCenter().y);
+		}
+		else if (main_view.getCenter().x + main_view.getSize().x / 2 > level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
+			main_view.setCenter((level.get()->getLevelDim().x * game_scale * sprite_dimensions)- main_view.getSize().x / 2, main_view.getCenter().y);
+		}
+		
+		window.setView(main_view);
+
+		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+			
+		break;
+	}
+
+	default:
+		break;
+	}
+
+	is_mouse_pressed = false;
 }
 
 void Game::render() {
-	window.clear();
+	window.clear(sf::Color(34, 0, 92));
 
 	level.get()->render(&window);
   
@@ -247,6 +405,16 @@ void Game::render() {
 	if (cur_weapon != nullptr)
 	{
 		cur_weapon->render(&window);
+	}
+
+	if (cur_game_state == GameState::moving) {
+		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
+	}
+
+	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
+	
+	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list) {
+		ui.renderList(&window);
 	}
 
 	window.draw(mouse_sprite);
@@ -322,24 +490,6 @@ void Game::clean() {
 
 Game::GameState Game::getCurGameState() const {
 	return cur_game_state;
-}
-
-void Game::enableStandardPlay() {
-	std::cout << "Switching to standard play.\n";
-
-	cur_game_state = GameState::standard_play;
-}
-
-void Game::pause() {
-	std::cout << "Pausing game." << std::endl;
-
-	cur_game_state = GameState::paused;
-}
-
-void Game::unpause() {
-	std::cout << "Unpausing game." << std::endl;
-
-	cur_game_state = GameState::standard_play;
 }
 
 void Game::gameExit() {
@@ -441,23 +591,35 @@ void Game::weaponCollisions() {
 	}
 }
 
-void Game::shuffleEnemies()
+void Game::shuffleEnemies(sf::Clock& clock)
 {
     std::vector<sf::Vector2i> spawns;
+	spawns.push_back(sf::Vector2i(player->getPosition().x / (game_scale * sprite_dimensions), player->getPosition().y / (game_scale * sprite_dimensions)));
 
 	for (auto& i : enemies) {
 		sf::Vector2i spawn_grid_pos;
 		bool can_spawn = false;
 
-		while (!can_spawn) {
+		int start_time = clock.getElapsedTime().asMilliseconds();
+
+		while (!can_spawn && start_time + 100 > clock.getElapsedTime().asMilliseconds()) {
 			can_spawn = true;
 			spawn_grid_pos = level.get()->getValidSpawnPos(rng);
+
 			for (int i = 0; i < spawns.size(); i++) {
 				if (spawn_grid_pos == spawns[i]) {
 					can_spawn = false;
 					break;
 				}
 			}
+		}
+			
+		if (!can_spawn) {
+			std::cout << "Could not find a valid enemy spawn position in time! Removing enemy." << std::endl;
+			i->takeDamage(999);
+			enemies.erase(std::remove_if(enemies.begin(), enemies.end(), 
+				[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
+			continue;
 		}
 
 		spawns.push_back(spawn_grid_pos);

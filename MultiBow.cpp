@@ -1,8 +1,8 @@
 #include "MultiBow.h"
 
-MultiBow::MultiBow(float game_scale)
+MultiBow::MultiBow(int* player_arrows, float game_scale)
     :
-    Bow(20.0f, 1, 100, "Multi-Bow", game_scale)
+    Bow(20.0f, 1, 100, "Multi-Bow", player_arrows, game_scale)
 {    
     if (!bow_texture.loadFromFile("art/MultiBow.png")) {
 		std::cout << "MultiBow texture could not be loaded!" << std::endl;
@@ -37,6 +37,13 @@ MultiBow::MultiBow(float game_scale)
 
 void MultiBow::commenceAttack() {
 
+    if (*player_arrows <= 0) {
+        std::cout << "Can't attack, you have no arrows!" << std::endl;
+        return;
+    }
+
+    *player_arrows = *player_arrows - 1;
+    
     float spread = 20.0f;
     float angle = bow_sprite.getRotation() - spread;
 

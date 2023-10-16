@@ -3,8 +3,10 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Counter.h"
 #include "Enemy.h"
 #include "Entity.h"
+#include "GameUI.h"
 #include "Level.h"
 #include "NPC.h"
 #include "Player.h"
@@ -30,9 +32,14 @@ public:
 	enum class GameState {
 		not_running,
 		title,
-		settings,
-		paused,
-		standard_play,
+		starting_play,
+		action_menu,
+		moving,
+		weapons_list,
+		attacking,
+		level_viewer,
+		enemy_turn,
+		challenge_mode
 	};
 
 private:
@@ -54,19 +61,35 @@ private:
 	// Boolean values representing whether a particular button has been pressed
 	bool is_d_pressed = false;
 	bool is_a_pressed = false;
+	bool is_w_pressed = false;
+	bool is_s_pressed = false;
 	bool is_space_pressed = false;
+	bool is_escape_pressed = false;
 	bool is_mouse_pressed = false;
 
 	float game_scale = 4.0f;			// The scale which the game is rendered as
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites
 
+	bool has_moved = false;
+
+	bool mouse_hold = false;
+
+	std::vector<std::string> main_ui_list;
+	
 	//Game Objects ----------------------------------------------------- 
 	std::unique_ptr<Level> level = nullptr;
   
 	Player* player;
-	std::vector<Enemy*> enemies;
 
 	Weapon* cur_weapon = nullptr;
+
+	std::vector<Enemy*> enemies;
+
+
+	Counter counter;
+
+	GameUI ui;
+
 
 public:
 	Game() = delete;
@@ -74,7 +97,7 @@ public:
 
 	//Basic gmae loop functions
 	void handleEvents();	 //Handles SFML events
-	void update();			 //Handles game logic
+	void update(sf::Clock& clock);			 //Handles game logic
 	void render();			 //Handles graphics rendering
 
 	void handleCollision(Entity* ent, sf::Vector2f prev_pos);
@@ -84,15 +107,12 @@ public:
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 private:
-	void enableStandardPlay();
-	void pause();
-	void unpause();
 	void gameExit();
 
 	void collisionYCorrection(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
 	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
 	void weaponCollisions();
-	void shuffleEnemies();
+	void shuffleEnemies(sf::Clock& clock);
 	void updateMainView();
 };
 
