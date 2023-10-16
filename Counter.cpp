@@ -1,9 +1,9 @@
 #include "Counter.h"
 
-Counter::Counter(sf::Clock& clock, int initial_value)
+Counter::Counter(sf::Clock* clock, int initial_value)
     :
     count(initial_value),
-    last_update_tick(clock.getElapsedTime().asMilliseconds())
+    last_update_tick(clock->getElapsedTime().asMilliseconds())
 {
     if (initial_value < 0) {
         std::cout << "Warning, initial counter value was set to less than zero." << std::endl;
@@ -42,10 +42,10 @@ void Counter::setSprite(float game_scale) {
 	numbers_sprite.setTexture(numbers_tex);
 }
 
-bool Counter::update(sf::Clock &clock)
+bool Counter::update(sf::Clock* clock)
 {
 
-    while (last_update_tick + 1000 < clock.getElapsedTime().asMilliseconds()) {
+    while (last_update_tick + 1000 < clock->getElapsedTime().asMilliseconds()) {
         tick();
 
         if (count < 0) {

@@ -9,10 +9,10 @@ class Counter
 {
 public:
     Counter() = default;
-    Counter(sf::Clock& clock, int initial_value);
+    Counter(sf::Clock* clock, int initial_value);
     void setSprite(float game_scale);
 
-    bool update(sf::Clock& clock); // Updates the counter using the amount of time since last updating
+    bool update(sf::Clock* clock); // Updates the counter using the amount of time since last updating
     void render(sf::RenderWindow* win, sf::Vector2f centre_position); // Renders the number to the screen
     void tick(); // Reduces the current count by 1
 

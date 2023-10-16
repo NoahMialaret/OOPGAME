@@ -1,8 +1,9 @@
 #include "Game.h"
 
-Game::Game(const char* title) 
+Game::Game(const char* title, sf::Clock* clock) 
 	:
-    rng(std::random_device()())
+    rng(std::random_device()()),
+	clock(clock)
 {
 	window.create(sf::VideoMode(800, 600), title, sf::Style::Close);
 
@@ -180,7 +181,7 @@ void Game::handleEvents() {
 	}
 }
 
-void Game::update(sf::Clock& clock) {
+void Game::update() {
 
 	if (*player->getHealth() <= 0) {
 		cur_game_state = GameState::not_running;
@@ -196,17 +197,20 @@ void Game::update(sf::Clock& clock) {
 
 	if (cur_weapon == nullptr) {
 		sf::Vector2f prev_pos = player->getPosition();
+
+
 		if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
-			player->update(is_space_pressed, is_a_pressed, is_d_pressed);
+			player->update(is_space_pressed, is_a_pressed, is_d_pressed, clock);
 		}
 		else {
-			player->update();
+			player->update(clock);
 		}
 		handleCollision(player, prev_pos);
+		EnemyCollisions();
 
 		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
 			std::cout << "Player fell into a pit! Reseting player." << std::endl;
-			player->takeDamage(1);
+			player->takeDamage(1, clock);
 			player->reset();
 			is_a_pressed = false;
 			is_d_pressed = false;
@@ -221,7 +225,7 @@ void Game::update(sf::Clock& clock) {
 	switch (cur_game_state)
 	{
 	case GameState::starting_play:
-		shuffleEnemies(clock);
+		shuffleEnemies();
 		cur_game_state = GameState::action_menu;
 		break;
 	
@@ -281,7 +285,7 @@ void Game::update(sf::Clock& clock) {
 	}
 
 	case GameState::enemy_turn:
-		shuffleEnemies(clock);
+		shuffleEnemies();
 		has_moved = false;
 		cur_game_state = GameState::action_menu;
 		break;
@@ -591,18 +595,39 @@ void Game::weaponCollisions() {
 	}
 }
 
-void Game::shuffleEnemies(sf::Clock& clock)
+void Game::EnemyCollisions() {
+	
+	sf::IntRect player_hitbox = player->getHitbox();
+
+	for (auto& e : enemies) {
+
+		sf::IntRect hitbox = e->getHitbox();
+		if (hitbox.intersects(player_hitbox)) {
+			std::cout << "Player collided with enemy!" << std::endl;
+			
+			sf::Vector2f knockback((player->getPosition().x - e->getPosition().x) / (game_scale), 
+				(player->getPosition().y - e->getPosition().y) / (game_scale));
+
+			player->setVelocity(knockback);
+			player->takeDamage(1, clock);
+			break;
+		}
+	}
+}
+
+void Game::shuffleEnemies()
 {
     std::vector<sf::Vector2i> spawns;
 	spawns.push_back(sf::Vector2i(player->getPosition().x / (game_scale * sprite_dimensions), player->getPosition().y / (game_scale * sprite_dimensions)));
+	spawns.push_back(sf::Vector2i((player->getPosition().x + game_scale * sprite_dimensions) / (game_scale * sprite_dimensions), player->getPosition().y / (game_scale * sprite_dimensions)));
 
 	for (auto& i : enemies) {
 		sf::Vector2i spawn_grid_pos;
 		bool can_spawn = false;
 
-		int start_time = clock.getElapsedTime().asMilliseconds();
+		int start_time = clock->getElapsedTime().asMilliseconds();
 
-		while (!can_spawn && start_time + 100 > clock.getElapsedTime().asMilliseconds()) {
+		while (!can_spawn && start_time + 100 > clock->getElapsedTime().asMilliseconds()) {
 			can_spawn = true;
 			spawn_grid_pos = level.get()->getValidSpawnPos(rng);
 
