@@ -5,8 +5,8 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button) {
-
+void Player::update(bool jump_button, bool left_button, bool right_button) {
+	
     if (!jump_button) {
 		jump_hold = false;
 	}
@@ -53,18 +53,126 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 		}
 	}
 
+	if (is_grounded) {
+		saved_position = sprite.getPosition();
+	}
+
 	sprite.move(velocity);
 }
 
+void Player::update() {
+	// Effect of gravity on the player
+	velocity.y += 0.7f;
+
+	if (velocity.x > 0.0f) {
+		velocity.x -= is_grounded ? 0.65f : 0.1f;
+		if (velocity.x < 0.0f) {
+			velocity.x = 0.0f;
+		}
+	}
+	else if (velocity.x < 0.0f) {
+		velocity.x += is_grounded ? 0.65f : 0.1f;
+		if (velocity.x > 0.0f) {
+			velocity.x = 0.0f;
+		}
+	}
+	
+	if (is_grounded) {
+		saved_position = sprite.getPosition();
+	}
+
+	sprite.move(velocity);
+}
+
+void Player::render(sf::RenderWindow *win) const
+{
+    win->draw(sprite);
+}
+
 void Player::setVelocity(sf::Vector2f new_vel) {
-	if (new_vel.y > velocity.y)
-	{
+	if (new_vel.y > velocity.y) {
 		can_increase_jump_velocity = false;
 	}
 	velocity = new_vel;
 }
 
 void Player::reset() {
-	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
 	velocity = sf::Vector2f(0.0f, 0.0f);
+	sprite.setPosition(saved_position);
+}
+
+void Player::giveWeapon(Weapon* weapon) {
+	weapons.push_back(weapon);
+
+	std::cout << "Gave player a weapon (" << weapon->getName() << ")." << std::endl;
+}
+
+Weapon* Player::getWeapon(int index) {
+	if (weapons.size() == 0) {
+		std::cout << "Player has no weapons!" << std::endl;
+		return nullptr;
+	}
+
+	if (index < 0 || index >= weapons.size()) {
+		std::cout << "Trying to access non-existent weapon in Player::drawWeapon(), accessing first weapon." << std::endl;
+		return weapons[0];
+	}
+
+	weapons[index]->setCentrePosition(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
+		sprite.getPosition().y + sprite.getScale().y * (float)sprite.getTextureRect().height / 2));
+
+	std::cout << "Weapon at " << index << " drawn! (" << weapons[index]->getName() << ")" << std::endl;
+	return weapons[index];
+}
+
+std::vector<std::string> Player::getWeaponNames()
+{
+	std::vector<std::string> weapon_names;
+	for (auto& w : weapons) {
+		weapon_names.push_back(w->getName());
+	}
+    return weapon_names;
+}
+
+void Player::clean()
+{
+	for (int i = 0; i < weapons.size(); i++)
+	{
+		delete weapons[i];
+	}
+
+	std::cout << "Successfully cleaned Player!" << std::endl;
+}
+
+bool Player::isAttackActive() {
+    return is_attack_active;
+}
+
+void Player::savePosition() {
+	saved_position = sprite.getPosition();
+}
+
+const int *Player::getHealth() {
+    return &health;
+}
+
+bool Player::takeDamage(int damage_amount) {
+    health -= damage_amount;
+
+	std::cout << "player took " << damage_amount << " damage, health: " << health << std::endl;
+
+	if (health <= 0) {
+		return true;
+	}
+	return false;
+}
+
+int* Player::getArrows() {
+	std::cout << &arrows << std::endl;
+    return &arrows;
+}
+
+bool Player::isStill()
+{
+    return velocity.x == 0.0f && velocity.y == 0.0f;
 }

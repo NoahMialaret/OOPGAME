@@ -1,2 +1,3 @@
 [Shopkeeper]
 Hello, welcome to my shop!
+What do you want to buy?

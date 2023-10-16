@@ -18,13 +18,16 @@ protected:
 public:
     Entity(const char* tex_name, float game_scale, sf::Vector2f pos);
     void update(const sf::RenderWindow* win);
-    void render(sf::RenderWindow* win) const;
+    virtual void render(sf::RenderWindow* win) const;
 
     sf::Vector2f getPosition() const;
+    sf::IntRect getHitbox() const;
     sf::Vector2f getVelocity() const;
     virtual void setVelocity(sf::Vector2f new_vel);
     void move(sf::Vector2f offset);
     void setGrounded(bool is_grounded);
+    bool isGrounded() const;
+
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 #include "Game.h"
 
-Game game("Test");
+Game game("Jumperboiii");
 
 int main()
 {
@@ -39,9 +39,11 @@ int main()
 				// if condition true
 				float nextFrameStart = (float)clock.getElapsedTime().asMilliseconds() + (1000.0f / 60.0f);
 
-				game.handleEvents();
-				game.update();
-				game.render();
+
+	    	game.handleEvents();
+		    game.update(clock);
+		    game.render();
+        
 
 				while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);
 			}

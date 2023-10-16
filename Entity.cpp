@@ -23,13 +23,20 @@ void Entity::render(sf::RenderWindow* win) const {
     win->draw(sprite);
 }
 
-sf::Vector2f Entity::getPosition() const
-{
+sf::Vector2f Entity::getPosition() const {
     return sprite.getPosition();
 }
 
-sf::Vector2f Entity::getVelocity() const
-{
+sf::IntRect Entity::getHitbox() const {
+	sf::IntRect hitbox = sprite.getTextureRect();
+	hitbox.top = sprite.getPosition().y;
+	hitbox.left = sprite.getPosition().x;
+	hitbox.height = hitbox.height * sprite.getScale().y;
+	hitbox.width = hitbox.width * sprite.getScale().x;
+    return hitbox;
+}
+
+sf::Vector2f Entity::getVelocity() const {
     return velocity;
 }
 
@@ -41,7 +48,10 @@ void Entity::move(sf::Vector2f offset) {
 	sprite.move(offset);
 }
 
-void Entity::setGrounded(bool _is_grounded)
-{
+void Entity::setGrounded(bool _is_grounded) {
 	is_grounded = _is_grounded;
+}
+
+bool Entity::isGrounded() const {
+    return is_grounded;
 }
