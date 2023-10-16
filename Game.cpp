@@ -60,7 +60,7 @@ Game::Game(const char* title, sf::Clock* clock)
 	ui = GameUI(player->getHealth(), player->getArrows());
 	ui.setSprites(game_scale);
 
-	for (int i = 0; i < 8; i++)	{
+	for (int i = 0; i < 3; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
 
@@ -266,7 +266,7 @@ void Game::update() {
 				cur_game_state = GameState::enemy_turn;
 				next_enemy_attack_start = clock->getElapsedTime().asMilliseconds();
 				next_enemy_attack_index = 0;
-				player->setControl(false);
+				player->setControl(true);
 			}
 			else {
 				weaponCollisions();
@@ -647,7 +647,7 @@ void Game::weaponCollisions() {
 		[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
 	
 	if (old_size != enemies.size()) {
-		std::cout << old_size - enemies.size() << " enemy(ies) was defeated!" << std::endl;
+		std::cout << old_size - enemies.size() << " enemy was defeated! Remaining enemies: " << enemies.size() << std::endl;
 	}
 }
 
