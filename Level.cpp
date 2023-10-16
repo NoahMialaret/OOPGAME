@@ -8,7 +8,7 @@ Level::Level(float game_scale, float sprite_dim) {
 		return;
 	}
 
-    std::ifstream file("files/level_1.txt");
+    std::ifstream file("files/level_3.txt");
 
 	if (!file) {
 		std::cout << "Could not open level file, loading default level" << std::endl;
