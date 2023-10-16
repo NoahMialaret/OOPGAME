@@ -10,7 +10,7 @@ int main()
 
 	//creating the play button:
 	sf::Texture play_button_tex;
-	if(!play_button_tex.loadFromFile("art/PlayButton.png")) {
+	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
 	Button play_button(&play_button_tex, 400, 300);

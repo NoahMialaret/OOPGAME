@@ -34,6 +34,7 @@ public:
 	enum class GameState {
 		not_running,
 		title,
+		paused,
 		starting_play,
 		action_menu,
 		moving,
@@ -41,7 +42,12 @@ public:
 		attacking,
 		level_viewer,
 		enemy_turn,
-		challenge_mode
+		room_picker,
+		challenge_wait,
+		challenge_view,
+		challenge_mode,
+		shop,
+		roullete
 	};
 
 private:
@@ -57,6 +63,7 @@ private:
 
 	//Game Variables ---------------------------------------------------
 	GameState cur_game_state = GameState::not_running; // The current state of the game
+	GameState prev_game_state = GameState::not_running; // The previous state of the game, so that it can be returned to after leaving pause
 
     std::mt19937 rng;
 
@@ -76,6 +83,9 @@ private:
 
 	bool mouse_hold = false;
 
+	bool dialogue_active = false;
+
+
 	std::vector<std::string> main_ui_list;
 	
 	//Game Objects ----------------------------------------------------- 
@@ -87,11 +97,9 @@ private:
 
 	std::vector<Enemy*> enemies;
 
-
 	Counter counter;
 
 	GameUI ui;
-
 
 public:
 	Game() = delete;
