@@ -10,7 +10,7 @@ int main()
 
 	//creating the play button:
 	sf::Texture play_button_tex;
-	if(!play_button_tex.loadFromFile("art/playButton.png")) {
+	if(!play_button_tex.loadFromFile("art/PlayButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
 	Button play_button(&play_button_tex, 400, 300);
@@ -39,11 +39,9 @@ int main()
 				// if condition true
 				float nextFrameStart = (float)clock.getElapsedTime().asMilliseconds() + (1000.0f / 60.0f);
 
-
-	    	game.handleEvents();
-		    game.update(clock);
-		    game.render();
-        
+				game.handleEvents();
+				game.update(clock);
+				game.render();
 
 				while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);
 			}
@@ -54,10 +52,6 @@ int main()
 				game.shop();
 				break;
 	}
-
-	
-
-	
 
 	//Cleans game after it has stopped running
 	game.clean();

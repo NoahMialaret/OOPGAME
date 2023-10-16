@@ -23,7 +23,7 @@ Game::Game(const char* title)
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
 	std::cout << "Enabling Action Menu play." << std::endl;
-	cur_game_state = GameState::starting_play;
+	cur_game_state = GameState::title;
   
 	level = std::make_unique<Level>(game_scale, sprite_dimensions);
   
@@ -659,6 +659,7 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_t
 
 			if (play_event.type == sf::Event::MouseButtonReleased) {
 				if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
+					cur_game_state = GameState::starting_play;
 					return 1;
 				}
 
@@ -669,12 +670,14 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_t
 			}
 
 		}
+		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 
 		window.clear();
 
 		play_button->draw(&window);
 		shop_button->draw(&window);
 		window.draw(*shop_button_text);
+		window.draw(mouse_sprite);
 
 		window.display();
 
