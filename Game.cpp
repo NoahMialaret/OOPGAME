@@ -646,3 +646,67 @@ void Game::updateMainView() {
 
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }
+
+int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text) {
+	while(window.isOpen()) {
+		sf::Event play_event;
+
+		while (window.pollEvent(play_event)) {
+
+			if (play_event.type == sf::Event::Closed) {
+				window.close();
+			}
+
+			if (play_event.type == sf::Event::MouseButtonReleased) {
+				if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
+					return 1;
+				}
+
+				if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
+					return 2;
+				}
+				
+			}
+
+		}
+
+		window.clear();
+
+		play_button->draw(&window);
+		shop_button->draw(&window);
+		window.draw(*shop_button_text);
+
+		window.display();
+
+	}
+
+	return 1;
+}
+
+//temporary method to show that shop has been selected (debugging only)
+void Game::shop() {
+	while (window.isOpen()) {
+		sf::Font dogicapixel;
+		if (!dogicapixel.loadFromFile("files/dogicapixel.ttf")) {
+			std::cout << "dogipixel couldnt load inside shop method" << std::endl;
+		}
+		sf::Text shop_text;
+		shop_text.setFont(dogicapixel);
+		shop_text.setString("Shop coming soon!");
+		shop_text.setFillColor(sf::Color::Red);
+		shop_text.setPosition(300.f,400.f);
+
+		sf::Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
+		}
+
+		window.clear();
+
+		window.draw(shop_text);
+
+		window.display();
+	} 
+}

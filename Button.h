@@ -12,11 +12,11 @@ class Button {
         int corner_x;
         int corner_y;
 
-        int width;
-        int length;
+        //int width;
+        //int length;
 
     public:
-        Button(Texture* tex, int corner_x, int corner_y, int width, int length);
+        Button(Texture* tex, int corner_x, int corner_y);
 
         bool get_clicked();
         void set_clicked(bool clicked);
@@ -24,8 +24,6 @@ class Button {
         bool checkClicked(Vector2i position);
 
         void draw(RenderWindow* win);
-
-
 
 };
 
