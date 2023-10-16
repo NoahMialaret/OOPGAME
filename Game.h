@@ -41,7 +41,8 @@ public:
 		attacking,
 		level_viewer,
 		enemy_turn,
-		challenge_mode
+		challenge_mode,
+		pause
 	};
 
 private:
