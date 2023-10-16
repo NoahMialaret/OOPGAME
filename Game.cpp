@@ -23,7 +23,7 @@ Game::Game(const char* title)
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
 	std::cout << "Enabling Action Menu play." << std::endl;
-	cur_game_state = GameState::action_menu;
+	cur_game_state = GameState::starting_play;
   
 	level = std::make_unique<Level>(game_scale, sprite_dimensions);
   
@@ -62,7 +62,6 @@ Game::Game(const char* title)
 	for (int i = 0; i < 20; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
-	shuffleEnemies();
 
 	main_ui_list.push_back("Move");
 	main_ui_list.push_back("Weapon");
@@ -221,6 +220,11 @@ void Game::update(sf::Clock& clock) {
 
 	switch (cur_game_state)
 	{
+	case GameState::starting_play:
+		shuffleEnemies(clock);
+		cur_game_state = GameState::action_menu;
+		break;
+	
 	case GameState::moving:
 	case GameState::challenge_mode:
 		if(is_escape_pressed || counter.update(clock)) {
@@ -277,7 +281,7 @@ void Game::update(sf::Clock& clock) {
 	}
 
 	case GameState::enemy_turn:
-		shuffleEnemies();
+		shuffleEnemies(clock);
 		has_moved = false;
 		cur_game_state = GameState::action_menu;
 		break;
@@ -587,7 +591,7 @@ void Game::weaponCollisions() {
 	}
 }
 
-void Game::shuffleEnemies()
+void Game::shuffleEnemies(sf::Clock& clock)
 {
     std::vector<sf::Vector2i> spawns;
 	spawns.push_back(sf::Vector2i(player->getPosition().x / (game_scale * sprite_dimensions), player->getPosition().y / (game_scale * sprite_dimensions)));
@@ -596,15 +600,26 @@ void Game::shuffleEnemies()
 		sf::Vector2i spawn_grid_pos;
 		bool can_spawn = false;
 
-		while (!can_spawn) {
+		int start_time = clock.getElapsedTime().asMilliseconds();
+
+		while (!can_spawn && start_time + 100 > clock.getElapsedTime().asMilliseconds()) {
 			can_spawn = true;
 			spawn_grid_pos = level.get()->getValidSpawnPos(rng);
+
 			for (int i = 0; i < spawns.size(); i++) {
 				if (spawn_grid_pos == spawns[i]) {
 					can_spawn = false;
 					break;
 				}
 			}
+		}
+			
+		if (!can_spawn) {
+			std::cout << "Could not find a valid enemy spawn position in time! Removing enemy." << std::endl;
+			i->takeDamage(999);
+			enemies.erase(std::remove_if(enemies.begin(), enemies.end(), 
+				[](const Enemy* en){ return en->getHealth() <= 0; }), enemies.end());
+			continue;
 		}
 
 		spawns.push_back(spawn_grid_pos);

@@ -17,16 +17,17 @@ Level::Level(float game_scale, float sprite_dim) {
 	}
 
 	std::string fileline;
-    int y = -1;
+
+    dim.y = 0;
 
     while(std::getline(file, fileline)) {
-        if (dim.y != 0 && fileline.size() != dim.x) {
+        dim.y++;
+
+        if (dim.y > 0 && fileline.size() != dim.x) {
             std::cout << "Row widths did not match, loading default level." << std::endl;
             loadDefaultLevel(game_scale, sprite_dim);
             return;
         }
-
-        y++;
 
         dim.x = fileline.size();
 
@@ -40,12 +41,10 @@ Level::Level(float game_scale, float sprite_dim) {
             }
 
             tiles.push_back(Tile(type, game_scale, sprite_dim, sf::Vector2f(float(x) * sprite_dim * game_scale, 
-                float(y) * sprite_dim * game_scale), sprite_sheet));
+                float(dim.y) * sprite_dim * game_scale), sprite_sheet));
         }
 
     }
-
-    dim.y = y;
 }
 
 void Level::loadDefaultLevel(float game_scale, float sprite_dim) {

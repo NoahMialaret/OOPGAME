@@ -32,6 +32,7 @@ public:
 	enum class GameState {
 		not_running,
 		title,
+		starting_play,
 		action_menu,
 		moving,
 		weapons_list,
@@ -111,7 +112,7 @@ private:
 	void collisionYCorrection(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
 	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
 	void weaponCollisions();
-	void shuffleEnemies();
+	void shuffleEnemies(sf::Clock& clock);
 	void updateMainView();
 };
 

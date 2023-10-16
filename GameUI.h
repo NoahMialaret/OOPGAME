@@ -24,18 +24,18 @@ private:
     sf::Vector2f list_position;
     sf::RectangleShape list_background_rect;
 
-    int highlight_index = 0;
-    int clicked_index = 0;
+    // Determine which item in a list should be highlighted
+    int highlight_index = -1;
 public:
-    GameUI() = default;
-    GameUI(const int* player_health, const int* num_arrows);
-    void setSprites(float game_scale);
-    void makeList(std::vector<std::string> new_list, const sf::Vector2f new_position);
-    int update(sf::Vector2f mouse_pos);
-    void renderMain(sf::RenderWindow* win, sf::Vector2f view_centre);
-    void renderList(sf::RenderWindow* win);
-    bool isListEmpty();
-    void resetList();
+    GameUI() = default;                                         // Default Constructor
+    GameUI(const int* player_health, const int* num_arrows);    // Dafult constructor which takes pointers to player stats for displaying on screen
+    void setSprites(float game_scale);                          // Sets the properties of sprites
+    void makeList(std::vector<std::string> new_list, const sf::Vector2f new_position); // Creates a new list of strings to be displayed
+    int update(sf::Vector2f mouse_pos);                         // Uses the mouse position to determine which (if any) button in the list is being hovered over
+    void renderMain(sf::RenderWindow* win, sf::Vector2f view_centre); // Renders UI elements that should alomst always be on screen, such as health and ammo
+    void renderList(sf::RenderWindow* win);                     // Renders the list and background rectangles
+    bool isListEmpty();                                         // Returns whether or not the list has no elements in it
+    void resetList();                                           // Clears the content of the list
 };
 
 #endif

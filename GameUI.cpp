@@ -114,4 +114,5 @@ bool GameUI::isListEmpty() {
 void GameUI::resetList() {
     list.clear();
     list_position = sf::Vector2f(0.0f, 0.0f);
+    highlight_index = -1;
 }
