@@ -31,7 +31,7 @@ Game::Game(const char* title, sf::Clock* clock)
 	sf::Vector2i spawn_grid_pos = level.get()->getValidSpawnPos(rng);
 	sf::Vector2f spawn_pos(game_scale * sprite_dimensions * spawn_grid_pos.x, game_scale * sprite_dimensions * spawn_grid_pos.y);
 
-	player = new Player("art/TestCharacter.png", game_scale, spawn_pos);
+	player = new Player("art/Player.png", game_scale, spawn_pos);
 
 	Weapon* test = new BasicBow(player->getArrows(), game_scale);
 
@@ -61,7 +61,7 @@ Game::Game(const char* title, sf::Clock* clock)
 	ui.setSprites(game_scale);
 
 	for (int i = 0; i < 3; i++)	{
-		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
+		enemies.push_back(new Enemy("art/Enemy.png", game_scale));
 	}
 
 	main_ui_list.push_back("Move");

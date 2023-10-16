@@ -2,7 +2,7 @@
 
 Level::Level(float game_scale, float sprite_dim) {
 
-	if (!sprite_sheet.loadFromFile("art/TestTile.png")) {
+	if (!sprite_sheet.loadFromFile("art/Tiles.png")) {
 		std::cout << "Level sprite sheet could not be loaded! Loading default level without textures." << std::endl;
         loadDefaultLevel(game_scale, sprite_dim);
 		return;

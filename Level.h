@@ -17,6 +17,7 @@ public:
         empty,
         grass,
         ground,
+        brick,
         end
     };
 private:
