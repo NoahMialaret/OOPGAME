@@ -1,10 +1,14 @@
 # To execute, run: make <section_name> in the terminal. e.g: make game_run
 
 # Makes an executable
-game: main.cpp Game.cpp
-	@g++ -std=c++20 main.cpp Game.cpp Entity.cpp Player.cpp Enemy.cpp NPC.cpp Tile.cpp Level.cpp -o OOPGame -lsfml-graphics -lsfml-window -lsfml-system
+game:
+	@g++ -std=c++20 main.cpp Game.cpp Entity.cpp Player.cpp Enemy.cpp NPC.cpp Tile.cpp Level.cpp Weapon.cpp Bow.cpp BasicBow.cpp MultiBow.cpp CrossBow.cpp Melee.cpp BroardSword.cpp Daggers.cpp ShortSword.cpp -o Jumperboiii -lsfml-graphics -lsfml-window -lsfml-system
 
 # Makes and runs an executable
-game_run: main.cpp Game.cpp
+game_run:
 	@make game
-	@./OOPGame
+	@./Jumperboiii
+
+# Runs the game output
+run:
+	@./Jumperboiii

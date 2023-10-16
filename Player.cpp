@@ -5,8 +5,8 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button) {
-
+void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_button, bool right_button, sf::Vector2f mouse_pos) {
+	
     if (!jump_button) {
 		jump_hold = false;
 	}
@@ -56,9 +56,12 @@ void Player::update(const sf::RenderWindow *win, bool jump_button, bool left_but
 	sprite.move(velocity);
 }
 
+void Player::render(sf::RenderWindow* win) const {
+    win->draw(sprite);
+}
+
 void Player::setVelocity(sf::Vector2f new_vel) {
-	if (new_vel.y > velocity.y)
-	{
+	if (new_vel.y > velocity.y) {
 		can_increase_jump_velocity = false;
 	}
 	velocity = new_vel;
@@ -67,4 +70,43 @@ void Player::setVelocity(sf::Vector2f new_vel) {
 void Player::reset() {
 	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
 	velocity = sf::Vector2f(0.0f, 0.0f);
+}
+
+void Player::giveWeapon(Weapon* weapon) {
+	weapons.push_back(weapon);
+
+	std::cout << "Gave player a weapon (" << weapon->getName() << ")." << std::endl;
+}
+
+Weapon* Player::getWeapon(int index) {
+	if (weapons.size() == 0) {
+		std::cout << "Player has no weapons!" << std::endl;
+		return nullptr;
+	}
+
+	if (index < 0 || index >= weapons.size()) {
+		std::cout << "Trying to access non-existent weapon in Player::drawWeapon(), accessing first weapon." << std::endl;
+		return weapons[0];
+	}
+
+	weapons[index]->setCentrePosition(sf::Vector2f(sprite.getPosition().x + sprite.getScale().x * (float)sprite.getTextureRect().width / 2,
+		sprite.getPosition().y + sprite.getScale().y * (float)sprite.getTextureRect().height / 2));
+
+	std::cout << "Weapon at " << index << " drawn! (" << weapons[index]->getName() << ")" << std::endl;
+	return weapons[index];
+}
+
+void Player::clean()
+{
+	for (int i = 0; i < weapons.size(); i++)
+	{
+		delete weapons[i];
+	}
+
+	std::cout << "Successfully cleaned Player!" << std::endl;
+}
+
+bool Player::isAttackActive()
+{
+    return is_attack_active;
 }

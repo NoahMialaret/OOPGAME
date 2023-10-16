@@ -2,7 +2,7 @@
 
 #include "Game.h"
 
-Game game("Test");
+Game game("Jumperboiii");
 
 int main()
 {
