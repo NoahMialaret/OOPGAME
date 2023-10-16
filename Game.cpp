@@ -27,6 +27,8 @@ Game::Game(const char* title)
   
 	player = new Player("art/TestCharacter.png", game_scale, sf::Vector2f(0.0f,50.0f));
 
+	dialogue = Dialogue();
+
 	for (int i = 0; i < 3; i++)	{
 		enemies.push_back(new Enemy("art/TestEnemy.png", game_scale));
 	}
@@ -66,6 +68,12 @@ void Game::handleEvents() {
 
 					case sf::Keyboard::Space:
 						is_space_pressed = true;
+
+						if(cur_game_state == GameState::dialogue){
+							if(dialogue.readLine()){
+								cur_game_state = GameState::standard_play;
+							}
+						}
 						break;
 
 					case sf::Keyboard::R:
@@ -74,6 +82,11 @@ void Game::handleEvents() {
 
 					case sf::Keyboard::LShift:
 						shuffleEnemies();
+						break;
+					
+					case sf::Keyboard::RShift:
+						dialogue.startDialogue("Shopkeeper");
+						cur_game_state = GameState::dialogue;
 						break;
 				}
 				break;
@@ -100,17 +113,18 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
+	if(cur_game_state == GameState::standard_play){
+		
+		for (auto& i : enemies) {
+			sf::Vector2f prev_pos = i->getPosition();
+			i->update(&window);
+			handleCollision(i, prev_pos);
+		}
 
-	for (auto& i : enemies) {
-		sf::Vector2f prev_pos = i->getPosition();
-		i->update(&window);
-		handleCollision(i, prev_pos);
+		sf::Vector2f prev_pos = player->getPosition();
+		player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
+		handleCollision(player, prev_pos);
 	}
-
-	sf::Vector2f prev_pos = player->getPosition();
-	player->update(&window, is_space_pressed, is_a_pressed, is_d_pressed);
-	handleCollision(player, prev_pos);
-
 	updateMainView();
 }
 
@@ -126,6 +140,11 @@ void Game::render() {
 	player->render(&window);
 
 	window.draw(test_mouse);
+
+	if(cur_game_state == GameState::dialogue){
+		dialogue.render(&window);
+	}
+	
 
 	window.display();	
 }

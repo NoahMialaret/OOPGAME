@@ -1,0 +1,22 @@
+This document includes all of the possible lines that NPCs can say when encountered
+
+Shopkeeper
+Welcome to the Shop!
+buy stuff
+
+RouletteBoi
+Welcome, try your luck at the wheel.
+Press any key to spin the wheel!
+
+
+Challenge
+Beat this in 30 seconds and a cool reward shall be yours!
+
+Credits
+GUI: enabled by SFML
+Font: dogicapixel
+Damian Smallridge: Lead Progammer (Dialogue and Text)
+Aarush Pandey: Lead Programmer (UI Design)
+Noah Mialaret: Lead Programmer (Physics and Weapons Testing)
+
+

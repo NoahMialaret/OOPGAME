@@ -9,6 +9,7 @@
 #include "NPC.h"
 #include "Player.h"
 #include "Tile.h"
+#include "Dialogue.h"
 
 #include <algorithm>
 #include <iostream>
@@ -24,6 +25,7 @@ public:
 		settings,
 		paused,
 		standard_play,
+		dialogue,
 	};
 
 private:
@@ -55,6 +57,8 @@ private:
   
 	Player* player;
 	std::vector<Enemy*> enemies;
+
+	Dialogue dialogue;
 
 public:
 	Game() = delete;
