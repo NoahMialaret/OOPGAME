@@ -5,7 +5,7 @@ Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
     Entity(tex_name, game_scale, pos)
 {}
 
-void Player::update(bool jump_button, bool left_button, bool right_button) {
+void Player::update(bool jump_button, bool left_button, bool right_button, sf::Clock* clock) {
 	
     if (!jump_button) {
 		jump_hold = false;
@@ -20,7 +20,7 @@ void Player::update(bool jump_button, bool left_button, bool right_button) {
 	}
 
 	// Initial jump velocity
-	if (!jump_hold && jump_button && is_grounded) {
+	if (!jump_hold && jump_button && is_grounded && can_control) {
 		velocity.y = -4.0f;
 		is_grounded = false;
 		can_increase_jump_velocity = true;
@@ -31,7 +31,7 @@ void Player::update(bool jump_button, bool left_button, bool right_button) {
 	velocity.y += 0.7f;
 
 	// Horizontal velocity calculation, varies depending on whether the player is gorunded or not
-	if (right_button != left_button) { // i.e. if only one of them is pressed
+	if (right_button != left_button && can_control) { // i.e. if only one of them is pressed
 		float speed_modifier = 0.8f - !is_grounded * 0.1f;
 
 		velocity.x += right_button * speed_modifier - left_button * speed_modifier;
@@ -58,34 +58,14 @@ void Player::update(bool jump_button, bool left_button, bool right_button) {
 	}
 
 	sprite.move(velocity);
+
+	if (is_invincible && invincibilty_start_time + 2000 < clock->getElapsedTime().asMilliseconds()) {
+		std::cout << "No longer invincible..." << std::endl;
+		is_invincible = false;
+	}
 }
 
-void Player::update() {
-	// Effect of gravity on the player
-	velocity.y += 0.7f;
-
-	if (velocity.x > 0.0f) {
-		velocity.x -= is_grounded ? 0.65f : 0.1f;
-		if (velocity.x < 0.0f) {
-			velocity.x = 0.0f;
-		}
-	}
-	else if (velocity.x < 0.0f) {
-		velocity.x += is_grounded ? 0.65f : 0.1f;
-		if (velocity.x > 0.0f) {
-			velocity.x = 0.0f;
-		}
-	}
-	
-	if (is_grounded) {
-		saved_position = sprite.getPosition();
-	}
-
-	sprite.move(velocity);
-}
-
-void Player::render(sf::RenderWindow *win) const
-{
+void Player::render(sf::RenderWindow *win) const {
     win->draw(sprite);
 }
 
@@ -156,7 +136,15 @@ const int *Player::getHealth() {
     return &health;
 }
 
-bool Player::takeDamage(int damage_amount) {
+bool Player::takeDamage(int damage_amount, sf::Clock* clock) {
+
+	if (is_invincible) {
+		return false;
+	}
+
+	is_invincible = true;
+	invincibilty_start_time = clock->getElapsedTime().asMilliseconds();
+
     health -= damage_amount;
 
 	std::cout << "player took " << damage_amount << " damage, health: " << health << std::endl;
@@ -168,11 +156,17 @@ bool Player::takeDamage(int damage_amount) {
 }
 
 int* Player::getArrows() {
-	std::cout << &arrows << std::endl;
     return &arrows;
 }
 
-bool Player::isStill()
-{
+bool Player::isStill() {
     return velocity.x == 0.0f && velocity.y == 0.0f;
+}
+
+bool Player::isInvincible() const {
+    return is_invincible;
+}
+
+void Player::setControl(bool control) {
+	can_control = control;
 }

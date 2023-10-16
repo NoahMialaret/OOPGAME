@@ -85,6 +85,8 @@ private:
 
 	bool dialogue_active = false;
 
+	int next_enemy_attack_start = 0;
+	int next_enemy_attack_index = 0;
 
 	std::vector<std::string> main_ui_list;
 	
@@ -101,13 +103,15 @@ private:
 
 	GameUI ui;
 
+	sf::Clock* clock;
+
 public:
 	Game() = delete;
-	Game(const char* title); //Game constructor
+	Game(const char* title, sf::Clock* clock); //Game constructor
 
 	//Basic gmae loop functions
 	void handleEvents();	 //Handles SFML events
-	void update(sf::Clock& clock);			 //Handles game logic
+	void update();			 //Handles game logic
 	void render();			 //Handles graphics rendering
 
 	void handleCollision(Entity* ent, sf::Vector2f prev_pos);
@@ -125,7 +129,8 @@ private:
 	void collisionYCorrection(Entity* ent, int left_col_dir, int right_col_dir, float ent_y, float col_y);
 	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
 	void weaponCollisions();
-	void shuffleEnemies(sf::Clock& clock);
+	void EnemyCollisions();
+	void shuffleEnemies();
 	void updateMainView();
 };
 

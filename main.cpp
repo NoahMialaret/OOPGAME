@@ -2,11 +2,12 @@
 
 #include "Game.h"
 
-Game game("Jumperboiii");
 
 int main()
 {
     sf::Clock clock;
+
+	Game game("Jumperboiii", &clock);
 
 	//creating the play button:
 	sf::Texture play_button_tex;
@@ -40,7 +41,7 @@ int main()
 				float nextFrameStart = (float)clock.getElapsedTime().asMilliseconds() + (1000.0f / 60.0f);
 
 				game.handleEvents();
-				game.update(clock);
+				game.update();
 				game.render();
 
 				while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);

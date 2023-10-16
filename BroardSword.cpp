@@ -28,7 +28,6 @@ void BroardSword::commenceAttack() {
         is_attacking_right = false;
         end_angle = sword->getRotation() - swing_length;
     }
-    std::cout << "Start angle: " << sword->getRotation() << " - End angle: " << end_angle << std::endl; 
     
     sprite_active[0] = true;
 

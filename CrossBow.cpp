@@ -14,8 +14,6 @@ CrossBow::CrossBow(int* player_arrows, float game_scale)
     sf::Vector2f centre((float)bow_sprite.getTextureRect().width / 2, 
         (float)bow_sprite.getTextureRect().height / 2);
 
-    std::cout << centre.x << " - " << centre.y << std::endl;
-
     bow_sprite.setOrigin(centre);
 
 
@@ -45,8 +43,6 @@ void CrossBow::commenceAttack() {
     }
     
     *player_arrows = *player_arrows - 1;
-
-    std::cout << player_arrows << std::endl;
 
     arrow->setPosition(bow_sprite.getPosition());
 
