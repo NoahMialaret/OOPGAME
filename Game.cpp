@@ -19,6 +19,24 @@ Game::Game(const char* title, sf::Clock* clock)
 		std::cout << "Texture could not be loaded!" << std::endl;
 		return;
 	}
+
+	//creating the play button:
+	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
+		std::cout << "play button texture couldn't load" << std::endl;
+	}
+	play_button = new Button(&play_button_tex, 200,200);
+
+	//credits button
+	if (!credits_button_tex.loadFromFile("art/CreditsButton.png")) {
+		 std::cout << "creidts button texture couldnt load" << std::endl;
+	}
+	credits_button = new Button(&credits_button_tex,200,300);
+
+    if (!close_button_tex.loadFromFile("art/CloseButton.png"))
+    {
+        std::cout << "close button texture couldnt load" << std::endl;
+    };
+    close_button = new Button(&close_button_tex,200,400);
 	
     if (!shop_button_tex.loadFromFile("art/ShopButton.png"))
     {
@@ -38,15 +56,14 @@ Game::Game(const char* title, sf::Clock* clock)
     }
     roulette_button = new Button(&roulette_button_tex,200,300);
 
+
 	mouse_sprite.setTexture(mouse_tex, true);
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
-	std::cout << "Enabling Action Menu play." << std::endl;
+	std::cout << "Enabling Title play." << std::endl;
 	cur_game_state = GameState::title;
 
 	player = new Player("art/Player.png", game_scale);
-
-	loadNewLevel();
 
 	// Weapon* test = new BasicBow(player->getArrows(), game_scale);
 
@@ -68,9 +85,9 @@ Game::Game(const char* title, sf::Clock* clock)
 
 	// player->giveWeapon(test4);
 
-	Weapon* test5 = new ShortSword(game_scale);
+	Weapon* shortsword = new ShortSword(game_scale);
 
-	player->giveWeapon(test5);
+	player->giveWeapon(shortsword);
 
 	ui = GameUI(player->getHealth(), player->getArrows(), player->getCoins());
 	ui.setSprites(game_scale);
@@ -131,6 +148,12 @@ void Game::handleEvents() {
 						is_s_pressed = true;
 						break;
 
+					case sf::Keyboard::T:
+						cur_game_state = GameState::title;
+						main_view.setCenter(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+						window.setView(main_view);
+						break;
+
 					case sf::Keyboard::Space:
 						is_space_pressed = true;
 						break;
@@ -176,8 +199,8 @@ void Game::handleEvents() {
 void Game::update() {
 
 	if (*player->getHealth() <= 0) {
-		cur_game_state = GameState::not_running;
-		std::cout << "Player is dead, closing game!" << std::endl;
+		cur_game_state = GameState::title;
+		std::cout << "Player is dead, returning to title!" << std::endl;
 		return;
 	}
 
@@ -205,29 +228,35 @@ void Game::update() {
 		handleCollision(npc, prev_pos);
 	}
 
-	sf::Vector2f prev_pos = player->getPosition();
+	if (cur_game_state != GameState::title && cur_game_state != GameState::room_picker) {
+		sf::Vector2f prev_pos = player->getPosition();
 
-	player->update(is_space_pressed, is_a_pressed, is_d_pressed, clock);
-	
-	handleCollision(player, prev_pos);
-	EnemyCollisions();
+		player->update(is_space_pressed, is_a_pressed, is_d_pressed, clock);
+		
+		handleCollision(player, prev_pos);
+		EnemyCollisions();
 
-	if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
-		std::cout << "Player fell into a pit! Reseting player." << std::endl;
-		player->takeDamage(1, clock);
-		player->reset();
-		is_a_pressed = false;
-		is_d_pressed = false;
-		is_space_pressed = false;
+		if (player->getPosition().y > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
+			std::cout << "Player fell into a pit! Reseting player." << std::endl;
+			player->takeDamage(1, clock);
+			player->reset();
+			is_a_pressed = false;
+			is_d_pressed = false;
+			is_space_pressed = false;
+		}
 	}
 
 
-	if (cur_game_state != GameState::level_viewer && cur_game_state != GameState::room_picker) {
+	if (cur_game_state != GameState::level_viewer && cur_game_state != GameState::room_picker && cur_game_state != GameState::title) {
 		updateMainView();
 	}
 
 
 	switch (cur_game_state) {
+		case GameState::title:
+			mainMenu();
+			break;
+
 		case GameState::starting_play:
 			shuffleEnemies();
 			cur_game_state = GameState::action_menu;
@@ -287,6 +316,19 @@ void Game::update() {
 void Game::render() {
 	window.clear(sf::Color(34, 0, 92));
 
+	if (dialogue_active) {
+		//render dialogue
+	}
+
+	if (cur_game_state == GameState::title) {
+		play_button->draw(&window);
+		close_button->draw(&window);
+		credits_button->draw(&window);
+		window.draw(mouse_sprite);
+		window.display();	
+		return;
+	}
+
 	if (cur_game_state != GameState::title && cur_game_state != GameState::room_picker) {
 		level.get()->render(&window);
 		player->render(&window);
@@ -294,7 +336,7 @@ void Game::render() {
 			if (cur_game_state != GameState::enemy_turn || e->isAttacking()) {
 				e->render(&window);
 			}
-	}
+		}
 	}
 
 	if (npc != nullptr) {
@@ -309,7 +351,6 @@ void Game::render() {
 	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
 		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
 	}
-
 
 	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
 	
@@ -989,45 +1030,27 @@ void Game::updateLevelViewer() {
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }
 
-int Game::mainMenu(Button* play_button, Button* close_button, Button* credits_button) {
-	while(window.isOpen()) {
-		sf::Event play_event;
-
-		while (window.pollEvent(play_event)) {
-
-			if (play_event.type == sf::Event::Closed) {
-				return 3;
-			}
-
-			if (play_event.type == sf::Event::MouseButtonReleased) {
-				if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
-					cur_game_state = GameState::starting_play;
-					return 1;
-				}
-
-				if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
-					return 2;
-				}
-
-				if (close_button->checkClicked(sf::Mouse::getPosition(window))) {
-					return 3;
-				}
-				
-			}
-
-		}
-		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
-
-		window.clear();
-
-		play_button->draw(&window);
-		close_button->draw(&window);
-		credits_button->draw(&window);
-		window.draw(mouse_sprite);
-
-		window.display();
-
+void Game::mainMenu() {
+	
+	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+	if (!is_mouse_pressed) {
+		return;
 	}
 
-	return 1;
+	if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
+		std::cout << "Starting the game!" << std::endl;
+		cur_game_state = GameState::starting_play;
+		loadNewLevel();
+	}
+
+	if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
+		std::cout << "Showing credits!" << std::endl;
+		// Show dialogue for credits
+		dialogue_active = true;
+	}
+
+	if (close_button->checkClicked(sf::Mouse::getPosition(window))) {
+		std::cout << "Closing the game..." << std::endl;
+		cur_game_state = GameState::not_running;
+	}
 }
