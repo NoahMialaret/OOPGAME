@@ -17,7 +17,7 @@ class Dialogue {
         sf::RectangleShape rectangle;
     public:
         Dialogue();
-        void startDialogue(std::string name);
+        void startDialogue(std::string name, sf::Vector2f screen_top_left);
         bool readLine();
         void render(sf::RenderWindow* win);
         std::string get_cur_line();

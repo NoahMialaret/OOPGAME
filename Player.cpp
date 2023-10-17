@@ -203,3 +203,12 @@ bool Player::hasWeapon(std::string weapon_name) {
 
     return false;
 }
+
+bool Player::heal() {
+	health++;
+	if (health > max_health) {
+		health = max_health;
+		return true;
+	}
+	return false;
+}

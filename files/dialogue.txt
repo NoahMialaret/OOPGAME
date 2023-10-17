@@ -1,12 +1,96 @@
-[Shopkeeper]
-Hello, welcome to my shop!
-What do you want to buy?
+This document includes all of the possible lines that NPCs can say when encountered
 
-credits
-test
-1
-2
-3
-4
-awdakjfiueafhiuafiaiuf
-awdad
+Shopkeeper
+Welcome to the Shop! 
+Buy some equipment!
+
+Roulette
+Welcome, try your luck at the wheel.
+Press any key to spin the wheel!
+
+Challenge
+If you can reach me I'll 
+give you some coins!
+The faster you go, the 
+more coins you get!
+
+Credits
+GUI: enabled by SFML
+Font: dogicapixel
+Damian Smallridge: 
+Lead Progammer (Dialogue and Text)
+Aarush Pandey: 
+Lead Programmer (UI Design)
+Noah Mialaret: 
+Lead Programmer (Physics and 
+Weapons Testing)
+
+ShortSword
+Your basic sword, deals one damage and...
+...attacks with a stab.
+
+BroardSword
+A stronger sword, deals two 
+damage with a wide swing.
+
+Daggers
+Dual wield two daggers and attack
+on both sides! Deals one damage.
+
+BasicBow
+Your bog-standard bow, shoots 
+one arrow in an arc.
+
+MultiBow
+Shoots 5 arrows! Magically only 
+consumes one arrow...
+
+CrossBow
+Shoots arrows with less of an arc, 
+perfect for sharp-shooters!
+Also deals two damage.
+
+Move
+Only one per turn, move around the 
+level for 5 seconds. Use this chance 
+to reposition someplace where you can
+attack the enemies.
+
+Weapon
+Your list of current weapons. 
+Different weapons are useful in 
+different scenarios.
+
+View Level
+Lets you go into freecam to freely 
+look around the level. Use this 
+chance to scope out the best route
+to attack the enemies!
+
+End Turn
+Finishes your turn if you don't 
+want to attack or move.
+
+MaxArrowError
+Max arrows reached! You can
+only have ten arrows.
+
+lackOfFunds
+You don't have enough money...
+
+MaxHealthError
+You're already at max health!
+
+Arrow
+Gives you an extra arrow!
+
+Heart
+Heals you by one heart!
+
+Fail
+You couldn't make it in time...
+better luck next time!
+
+Victory
+Well done! Here's some coins!
+Come back soon!
