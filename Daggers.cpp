@@ -2,7 +2,7 @@
 
 Daggers::Daggers(float game_scale)
     :
-    Melee(60.0f, 1, 100, "Daggers", game_scale)
+    Melee(60.0f, 1, 5, "Daggers", game_scale)
 {    
     for (int i = 0; i < 2; i++) {
         sprites.push_back(sf::Sprite(texture));

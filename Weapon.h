@@ -28,6 +28,7 @@ public:
     std::vector<sf::Sprite>* getSpritesForCollision();
     std::string getName();
     int getDamage() const;
+    int getCost() const;
     bool isAttacking();
     void setCentrePosition(sf::Vector2f new_centre_pos);
     float calculateAngle(sf::Vector2f mouse_pos, sf::Vector2f sprite_pos) const;

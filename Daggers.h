@@ -1,5 +1,5 @@
 #ifndef DAGGERS_H
-#define DAGGERS_h
+#define DAGGERS_H
 
 #include "Melee.h"
 
