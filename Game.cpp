@@ -99,6 +99,50 @@ Game::Game(const char* title, sf::Clock* clock)
 	main_ui_list.push_back("End Turn");
 }
 
+void Game::save() {
+
+	std::cout << "Saving game" << std::endl;
+
+	std::ofstream file("files/save.txt");
+
+	std::string layoutStr = "PlayerStats";
+	//Layout Writing ---------------------------------------
+	for (size_t i = 0; i < layoutStr.size(); i++)
+	{
+		file.put(layoutStr[i]);
+	}
+	file.put('\n');
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			//TileID takes the form xyy where x is collision and y is tile type
+			std::string tileID;
+
+			if ((int)TileAt(iVec2D(x, y)).colType != 0)
+			{
+				int i = 0;
+			}
+
+			tileID.append(IntToString((int)TileAt(iVec2D(x, y)).colType));
+
+			int typeint = (int)TileAt(iVec2D(x, y)).type;	
+			if (typeint < 10)
+			{
+				tileID.push_back('0');
+			}
+
+			tileID.append(IntToString(typeint));
+			for (size_t i = 0; i < tileID.size(); i++)
+			{
+				file.put(tileID[i]);
+			}
+		}
+		file.put('\n');
+	}
+}
+
 void Game::handleEvents() {
 	sf::Event event;
 	
@@ -434,6 +478,9 @@ void Game::handleCollision(Entity* ent, sf::Vector2f prev_pos) {
 }
 
 void Game::clean() {
+
+	save();
+
 	window.close();
 	
 	delete player;
@@ -443,6 +490,13 @@ void Game::clean() {
 	for(auto& i : enemies) {
 		delete i;
 	}
+
+	delete play_button;
+	delete credits_button;
+	delete close_button;
+	delete shop_button;
+	delete challenge_button;
+	delete roulette_button;
 
 	std::cout << "Game successfully cleaned!\n";
 }
@@ -1053,4 +1107,24 @@ void Game::mainMenu() {
 		std::cout << "Closing the game..." << std::endl;
 		cur_game_state = GameState::not_running;
 	}
+}
+
+std::string Game::intToString(int number) {
+	std::string RevInt;
+
+	while (number > 10) {
+		RevInt.push_back((number % 10) + 48);
+		number = number / 10; 
+	}
+	RevInt.push_back(number + 48);
+
+	std::string stringedInt = "";
+
+	for (auto i = RevInt.end(); i != RevInt.begin();)
+	{
+		i--;
+		stringedInt.push_back(*i);
+	}
+
+	return stringedInt;
 }

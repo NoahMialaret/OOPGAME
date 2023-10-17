@@ -3,6 +3,7 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Button.h"
 #include "Counter.h"
 #include "Enemy.h"
 #include "Entity.h"
@@ -24,11 +25,10 @@
 #include "ShortSword.h"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
-
-#include "Button.h"
 
 //Game object handles most of the game proccesses and is responsible for updating and rendering
 class Game {
@@ -141,6 +141,8 @@ public:
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 	void mainMenu();
+
+	void save();
 
 private:
 	void gameExit();
