@@ -58,6 +58,10 @@ private:
 	sf::Texture mouse_tex;
 	sf::Sprite mouse_sprite;
 
+	sf::Texture shop_button_tex;
+	sf::Texture challenge_button_tex;
+	sf::Texture roulette_button_tex;
+
 	sf::Mouse mouse;
 
 	sf::View main_view;
@@ -112,6 +116,10 @@ private:
 
 	Shop* shop = nullptr;
 
+	Button* shop_button;
+	Button* challenge_button;
+	Button* roulette_button;
+
 public:
 	Game() = delete;
 	Game(const char* title, sf::Clock* clock); //Game constructor
@@ -127,7 +135,7 @@ public:
 
 	Game::GameState getCurGameState() const; //Returns isRunning
 
-	int mainMenu(Button* play_button, Button* shop_button);
+	int mainMenu(Button* play_button);
 
 private:
 	void gameExit();

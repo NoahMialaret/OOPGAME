@@ -19,6 +19,24 @@ Game::Game(const char* title, sf::Clock* clock)
 		std::cout << "Texture could not be loaded!" << std::endl;
 		return;
 	}
+	
+    if (!shop_button_tex.loadFromFile("art/ShopButton.png"))
+    {
+        std::cout << "Shop button texture couldn't load" << std::endl;
+    }
+    shop_button = new Button(&shop_button_tex,200,100);
+
+    if (!challenge_button_tex.loadFromFile("art/ChallengeButton.png"))
+    {
+        std::cout << "Challenge button texture couldn't load" << std::endl;
+    }
+    challenge_button = new Button(&challenge_button_tex,200,200);
+
+    if (!roulette_button_tex.loadFromFile("art/RouletteButton.png"))
+    {
+        std::cout << "Roulette button texture couldn't load" << std::endl;
+    }
+    roulette_button = new Button(&roulette_button_tex,200,300);
 
 	mouse_sprite.setTexture(mouse_tex, true);
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
@@ -167,7 +185,8 @@ void Game::update() {
 	if (enemies.size() == 0 && cur_game_state == GameState::action_menu) {
 		std::cout << "All enemies have been defeated! Now pick your next room..." << std::endl;
 		cur_game_state = GameState::room_picker;
-		
+		main_view.setCenter(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		window.setView(main_view);
 	}
 
 	for (auto& e : enemies) {
@@ -203,7 +222,7 @@ void Game::update() {
 	}
 
 
-	if (cur_game_state != GameState::level_viewer) {
+	if (cur_game_state != GameState::level_viewer && cur_game_state != GameState::room_picker) {
 		updateMainView();
 	}
 
@@ -216,18 +235,33 @@ void Game::update() {
 
 	case GameState::room_picker:
 	{
-		// if (shop_button_pressed) {
-			// cur_game_state = GameState::shop;
-			// level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
-			// npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
-			// player->setPosition(sf::Vector2f(200.0f, 400.0f));
-		// }
 
-		// if (challenge_button_pressed) {
-			// cur_game_state = GameState::challenge_wait;
-			// loadChallenge();
-			// ui.resetList();
-		// }
+		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+		if (!is_mouse_pressed) {
+			break;
+		}
+
+		if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
+			std::cout << "Shop button pressed!" << std::endl;
+			cur_game_state = GameState::shop;
+			level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
+			npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
+			player->setPosition(sf::Vector2f(200.0f, 400.0f));
+			ui.resetList();
+		}
+
+		else if (challenge_button->checkClicked(sf::Mouse::getPosition(window))) {
+			std::cout << "Challenge button pressed!" << std::endl;
+			cur_game_state = GameState::challenge_wait;
+			loadChallenge();
+			ui.resetList();
+		}
+
+		else if (roulette_button->checkClicked(sf::Mouse::getPosition(window))) {
+			std::cout << "Roulette button pressed! (Not implemented)" << std::endl;
+		}
+
+		break;
 	}
 	
 	case GameState::moving:
@@ -426,12 +460,18 @@ void Game::update() {
 
 	case GameState::shop:
 	{
+
 		if (ui.isListEmpty() && player->isStill()) {
+			std::cout << "starting shop" << std::endl;
 			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
 			std::vector<std::string> shop_list = {"Exit shop", "Arrow - 5 Coins"};
 			ui.makeList(shop_list, list_position);
 			is_mouse_pressed = false;
 			shop = new Shop(rng, player, player->getArrows(), game_scale);
+			return;
+		}
+
+		if (shop == nullptr) {
 			return;
 		}
 
@@ -457,6 +497,7 @@ void Game::update() {
 			delete npc;
 			npc = nullptr;
 			delete shop;
+			shop = nullptr;
 			break;
 
 		case 1: // Buy arrow
@@ -568,7 +609,9 @@ void Game::update() {
 void Game::render() {
 	window.clear(sf::Color(34, 0, 92));
 
-	level.get()->render(&window);
+	if (cur_game_state != GameState::title && cur_game_state != GameState::room_picker) {
+		level.get()->render(&window);
+	}
   
 	for (auto& e : enemies) {
 		if (cur_game_state != GameState::enemy_turn || e->isAttacking()) {
@@ -598,10 +641,16 @@ void Game::render() {
 		ui.renderList(&window);
 	}
 
-	if(cur_game_state == GameState::shop) {
+	if(cur_game_state == GameState::shop && shop != nullptr) {
 		ui.renderList(&window);
 		shop->render(&window);
 		}
+
+	if (cur_game_state == GameState::room_picker) {
+		shop_button->draw(&window);
+		challenge_button->draw(&window);
+		roulette_button->draw(&window);
+	}
 
 	window.draw(mouse_sprite);
 
@@ -905,7 +954,7 @@ void Game::loadChallenge() {
 	npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(game_scale * sprite_dimensions * 84, game_scale * sprite_dimensions * 9), "ChallengeMaster");
 }
 
-int Game::mainMenu(Button* play_button, Button* shop_button) {
+int Game::mainMenu(Button* play_button) {
 	while(window.isOpen()) {
 		sf::Event play_event;
 
@@ -920,11 +969,6 @@ int Game::mainMenu(Button* play_button, Button* shop_button) {
 					cur_game_state = GameState::starting_play;
 					return 1;
 				}
-
-				if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
-					return 2;
-				}
-				
 			}
 
 		}

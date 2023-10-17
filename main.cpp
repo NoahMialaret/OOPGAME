@@ -16,15 +16,7 @@ int main()
 	}
 	Button play_button(&play_button_tex, 400, 300);
 
-	//white texture and text added to the shop button just for debugging, delete when an actual Shop button is designed
-	Texture shop_button_tex;
-    if (!shop_button_tex.loadFromFile("art/ShopButton.png", sf::IntRect(0, 0, 50, 20)))
-    {
-        std::cout << "shop button texture couldnt load" << std::endl;
-    };
-    Button shop_button(&shop_button_tex,200,100);
-
-	switch (game.mainMenu(&play_button, &shop_button)) {
+	switch (game.mainMenu(&play_button)) {
 		case 1:
 			//Main game loop
 			while (game.getCurGameState() != Game::GameState::not_running)
