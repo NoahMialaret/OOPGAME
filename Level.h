@@ -27,7 +27,7 @@ private:
 
     sf::Vector2i dim = sf::Vector2i(0, 0);
 public:
-    Level(float game_scale, float sprite_dim);
+    Level(std::string filename, float game_scale, float sprite_dim);
     void loadDefaultLevel(float game_scale, float sprite_dim);
     void render(sf::RenderWindow* win) const;
 

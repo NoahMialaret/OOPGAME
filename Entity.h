@@ -27,6 +27,7 @@ public:
     void move(sf::Vector2f offset);
     void setGrounded(bool is_grounded);
     bool isGrounded() const;
+    void setPosition(sf::Vector2f new_position);
 
 };
 

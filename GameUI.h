@@ -1,6 +1,9 @@
 #ifndef GAMEUI_H
 #define GAMEUI_H
 
+#include "List.h"
+#include "NumDisplay.h"
+
 #include "SFML/Graphics.hpp"
 
 #include <iostream>
@@ -11,6 +14,7 @@ class GameUI {
 private:
     const int* player_health = nullptr;
     const int* num_arrows = nullptr;
+    const int* coins = nullptr;
 
 	sf::Texture heart_tex;
 	sf::Sprite heart_sprite;
@@ -18,17 +22,13 @@ private:
 	sf::Texture arrow_tex;
 	sf::Sprite arrow_sprite;
 
-    std::vector<std::string> list;
-    sf::Font font;
-    sf::Text text;
-    sf::Vector2f list_position;
-    sf::RectangleShape list_background_rect;
+    NumDisplay coin_counter;
 
-    // Determine which item in a list should be highlighted
-    int highlight_index = -1;
+    List list;
+
 public:
     GameUI() = default;                                         // Default Constructor
-    GameUI(const int* player_health, const int* num_arrows);    // Dafult constructor which takes pointers to player stats for displaying on screen
+    GameUI(const int* player_health, const int* num_arrows, const int* coins);    // Dafult constructor which takes pointers to player stats for displaying on screen
     void setSprites(float game_scale);                          // Sets the properties of sprites
     void makeList(std::vector<std::string> new_list, const sf::Vector2f new_position); // Creates a new list of strings to be displayed
     int update(sf::Vector2f mouse_pos);                         // Uses the mouse position to determine which (if any) button in the list is being hovered over

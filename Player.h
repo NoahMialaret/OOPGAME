@@ -19,6 +19,9 @@ protected:
     int health = 5;
     int max_health = 5;
     int arrows = 5;
+    int max_arrows = 10;
+
+    int coins = 0;
 
     bool is_attack_active = false;
 
@@ -31,7 +34,7 @@ protected:
 
     bool can_control = false;
 public:
-    Player(const char* tex_name, float game_scale, sf::Vector2f pos);
+    Player(const char* tex_name, float game_scale);
     void update(bool jump_button, bool left_button, bool right_button, sf::Clock* clock);
     void render(sf::RenderWindow* win) const override;
     void setVelocity(sf::Vector2f new_vel) override;
@@ -50,6 +53,8 @@ public:
     bool isStill();
     bool isInvincible() const;
     void setControl(bool control);
+    bool addCoins(int amount);
+    int* getCoins();
 };
 
 #endif

@@ -10,7 +10,7 @@
 
 class Enemy : public Entity {
 private:
-    int health = 3;
+    int health = 1;
 
     bool is_attacking = false;
     int attack_start_time = 0;

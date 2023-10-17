@@ -9,6 +9,7 @@
 #include "GameUI.h"
 #include "Level.h"
 #include "NPC.h"
+#include "NumDisplay.h"
 #include "Player.h"
 #include "Tile.h"
 
@@ -89,11 +90,15 @@ private:
 	int next_enemy_attack_index = 0;
 
 	std::vector<std::string> main_ui_list;
+
+	int cleared_rooms = -1;
 	
 	//Game Objects ----------------------------------------------------- 
 	std::unique_ptr<Level> level = nullptr;
   
-	Player* player;
+	Player* player = nullptr;
+
+	NPC* npc = nullptr;
 
 	Weapon* cur_weapon = nullptr;
 
@@ -132,6 +137,7 @@ private:
 	void EnemyCollisions();
 	void shuffleEnemies();
 	void updateMainView();
+	void loadNewLevel();
 };
 
 #endif

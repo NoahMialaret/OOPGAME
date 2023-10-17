@@ -1,6 +1,6 @@
 #include "Level.h"
 
-Level::Level(float game_scale, float sprite_dim) {
+Level::Level(std::string filename, float game_scale, float sprite_dim) {
 
 	if (!sprite_sheet.loadFromFile("art/Tiles.png")) {
 		std::cout << "Level sprite sheet could not be loaded! Loading default level without textures." << std::endl;
@@ -8,7 +8,7 @@ Level::Level(float game_scale, float sprite_dim) {
 		return;
 	}
 
-    std::ifstream file("files/level_1.txt");
+    std::ifstream file("files/" + filename);
 
 	if (!file) {
 		std::cout << "Could not open level file, loading default level" << std::endl;

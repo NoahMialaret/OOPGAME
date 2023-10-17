@@ -55,3 +55,7 @@ void Entity::setGrounded(bool _is_grounded) {
 bool Entity::isGrounded() const {
     return is_grounded;
 }
+
+void Entity::setPosition(sf::Vector2f new_position) {
+	sprite.setPosition(new_position);
+}
