@@ -13,3 +13,8 @@ game_run:
 # Runs the game output
 run:
 	@./Jumperboiii
+
+# Makes and runs executable for button click unit test
+button_unit_test:
+	@ g++ buttonTest.cpp Button.cpp -o buttonUnitTest -lsfml-graphics -lsfml-window -lsfml-system
+	@./buttonUnitTest

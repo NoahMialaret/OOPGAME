@@ -22,6 +22,7 @@ public:
     void startAttack(sf::Vector2f start_pos, sf::Vector2f new_velocity, sf::Clock* clock);
     int getHealth() const;
     bool isAttacking() const;
+    void setHealth(int amount);
 };
 
 #endif
