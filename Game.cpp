@@ -905,7 +905,7 @@ void Game::loadChallenge() {
 	npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(game_scale * sprite_dimensions * 84, game_scale * sprite_dimensions * 9), "ChallengeMaster");
 }
 
-int Game::mainMenu(Button* play_button, Button* shop_button) {
+int Game::mainMenu(Button* play_button, Button* shop_button, Button* credits_button) {
 	while(window.isOpen()) {
 		sf::Event play_event;
 
@@ -924,6 +924,10 @@ int Game::mainMenu(Button* play_button, Button* shop_button) {
 				if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
 					return 2;
 				}
+
+				if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
+					return 3;
+				}
 				
 			}
 
@@ -934,6 +938,7 @@ int Game::mainMenu(Button* play_button, Button* shop_button) {
 
 		play_button->draw(&window);
 		shop_button->draw(&window);
+		credits_button->draw(&window);
 		window.draw(mouse_sprite);
 
 		window.display();
