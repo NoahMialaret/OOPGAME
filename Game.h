@@ -136,6 +136,7 @@ private:
 	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
 	void weaponCollisions();
 	void EnemyCollisions();
+	void NPCChallengeCollision();
 	void shuffleEnemies();
 	void updateMainView();
 	void loadNewLevel();

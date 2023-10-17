@@ -229,13 +229,17 @@ void Game::update() {
 		break;
 
 	case GameState::challenge_mode:
-		if(counter.update(clock)) {
+		if (counter.update(clock)) {
 			std::cout << "You ran out of time! Better luck next time." << std::endl;
 			player->setControl(false);
 			loadNewLevel();
 			cur_game_state = GameState::action_menu;
+			delete npc;
+			npc = nullptr;
 			ui.resetList();
+			break;
 		}
+		NPCChallengeCollision();
 		break;
 
 	case GameState::attacking:
@@ -792,6 +796,21 @@ void Game::EnemyCollisions() {
 	}
 }
 
+void Game::NPCChallengeCollision() {
+	assert(cur_game_state == GameState::challenge_mode);
+
+	if(player->getHitbox().intersects(npc->getHitbox())) {
+		std::cout << "You reached the end of the challenge! Here's " << counter.GetNumber() << " coins!" << std::endl;
+		player->addCoins(counter.GetNumber());
+		player->setControl(false);
+		loadNewLevel();
+		cur_game_state = GameState::action_menu;
+		ui.resetList();
+		delete npc;
+		npc = nullptr;
+	}
+}
+
 void Game::shuffleEnemies()
 {
     std::vector<sf::Vector2i> spawns;
@@ -858,6 +877,7 @@ void Game::loadNewLevel() {
 	sf::Vector2f new_pos(game_scale * sprite_dimensions * new_grid_pos.x, game_scale * sprite_dimensions * new_grid_pos.y);
 
 	player->setPosition(new_pos);
+	player->setVelocity(sf::Vector2f(0.0f, 0.0f));
 
 	for (int i = 0; i < 1; i++)	{
 		enemies.push_back(new Enemy("art/Enemy.png", game_scale));
@@ -871,6 +891,8 @@ void Game::loadChallenge() {
   	level = std::make_unique<Level>("challenge_1.txt", game_scale, sprite_dimensions);
 	
 	player->setPosition(sf::Vector2f(10.0f, (level.get()->getLevelDim().y - 2) * game_scale * sprite_dimensions));
+
+	npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(game_scale * sprite_dimensions * 84, game_scale * sprite_dimensions * 9), "ChallengeMaster");
 }
 
 int Game::mainMenu(Button* play_button, Button* shop_button) {
