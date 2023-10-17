@@ -3,7 +3,7 @@
 # Makes an executable
 
 game:
-	@g++ -std=c++20 main.cpp Game.cpp Entity.cpp Player.cpp Enemy.cpp NPC.cpp Tile.cpp Level.cpp Button.cpp Weapon.cpp Bow.cpp BasicBow.cpp MultiBow.cpp CrossBow.cpp Melee.cpp BroardSword.cpp Daggers.cpp ShortSword.cpp GameUI.cpp NumDisplay.cpp Counter.cpp List.cpp Shop.cpp -o Jumperboiii -lsfml-graphics -lsfml-window -lsfml-system
+	@g++ -std=c++20 main.cpp Dialogue.cpp Game.cpp Entity.cpp Player.cpp Enemy.cpp NPC.cpp Tile.cpp Level.cpp Button.cpp Weapon.cpp Bow.cpp BasicBow.cpp MultiBow.cpp CrossBow.cpp Melee.cpp BroardSword.cpp Daggers.cpp ShortSword.cpp GameUI.cpp NumDisplay.cpp Counter.cpp List.cpp Shop.cpp -o Jumperboiii -lsfml-graphics -lsfml-window -lsfml-system
 
 # Makes and runs an executable
 game_run:
@@ -13,3 +13,8 @@ game_run:
 # Runs the game output
 run:
 	@./Jumperboiii
+
+# Makes and runs executable for button click unit test
+button_unit_test:
+	@ g++ buttonTest.cpp Button.cpp -o buttonUnitTest -lsfml-graphics -lsfml-window -lsfml-system
+	@./buttonUnitTest

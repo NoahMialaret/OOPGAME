@@ -5,6 +5,7 @@
 
 #include "Button.h"
 #include "Counter.h"
+#include "Dialogue.h"
 #include "Enemy.h"
 #include "Entity.h"
 #include "GameUI.h"
@@ -127,6 +128,8 @@ private:
 	Button* shop_button;
 	Button* challenge_button;
 	Button* roulette_button;
+
+	Dialogue dialogue;
 
 public:
 	Game() = delete;
