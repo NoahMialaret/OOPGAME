@@ -11,7 +11,7 @@ private:
 public:
     Counter() = default;
     Counter(sf::Clock* clock, int initial_value);
-    void tick(); // Reduces the current count by 1
+    bool tick(); // Reduces the current count by 1
     bool update(sf::Clock* clock); // Updates the counter using the amount of time since last updating
 };
 
