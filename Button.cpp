@@ -10,7 +10,7 @@ Button::Button(Texture* tex, int corner_x, int corner_y) {
     //this->length = length;
 
     sprite.setPosition(corner_x, corner_y);
-    sprite.setScale(sf::Vector2f(4.0f,4.0f));
+    sprite.setScale(sf::Vector2f(2.0f,2.0f));
 }
 
 bool Button::get_clicked() {
@@ -22,8 +22,8 @@ void Button::set_clicked(bool clicked) {
 
 bool Button::checkClicked(Vector2i position) {
     IntRect textureRect = sprite.getTextureRect();
-    if ((position.x >= corner_x && position.x <= (corner_x + (4 * textureRect.width))) && 
-    ((position.y >= corner_y && position.y <= (corner_y + (4 * textureRect.height))))) {
+    if ((position.x >= corner_x && position.x <= (corner_x + (2 * textureRect.width))) && 
+    ((position.y >= corner_y && position.y <= (corner_y + (2 * textureRect.height))))) {
         return true;
     }
 
