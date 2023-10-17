@@ -989,14 +989,14 @@ void Game::updateLevelViewer() {
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }
 
-int Game::mainMenu(Button* play_button, Button* shop_button, Button* credits_button) {
+int Game::mainMenu(Button* play_button, Button* close_button, Button* credits_button) {
 	while(window.isOpen()) {
 		sf::Event play_event;
 
 		while (window.pollEvent(play_event)) {
 
 			if (play_event.type == sf::Event::Closed) {
-				window.close();
+				return 3;
 			}
 
 			if (play_event.type == sf::Event::MouseButtonReleased) {
@@ -1005,11 +1005,11 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Button* credits_but
 					return 1;
 				}
 
-				if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
+				if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
 					return 2;
 				}
 
-				if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
+				if (close_button->checkClicked(sf::Mouse::getPosition(window))) {
 					return 3;
 				}
 				
@@ -1021,7 +1021,7 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Button* credits_but
 		window.clear();
 
 		play_button->draw(&window);
-		shop_button->draw(&window);
+		close_button->draw(&window);
 		credits_button->draw(&window);
 		window.draw(mouse_sprite);
 
