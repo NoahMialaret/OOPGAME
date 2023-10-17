@@ -165,14 +165,9 @@ void Game::update() {
 
 
 	if (enemies.size() == 0 && cur_game_state == GameState::action_menu) {
-		std::cout << "All enemies have been defeated!" << std::endl;
-		// cur_game_state = GameState::shop;
-		// level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
-		// npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
-		// player->setPosition(sf::Vector2f(200.0f, 400.0f));
-		cur_game_state = GameState::challenge_wait;
-		loadChallenge();
-		ui.resetList();
+		std::cout << "All enemies have been defeated! Now pick your next room..." << std::endl;
+		cur_game_state = GameState::room_picker;
+		
 	}
 
 	for (auto& e : enemies) {
@@ -213,12 +208,27 @@ void Game::update() {
 	}
 
 
-	switch (cur_game_state)
-	{
+	switch (cur_game_state) {
 	case GameState::starting_play:
 		shuffleEnemies();
 		cur_game_state = GameState::action_menu;
 		break;
+
+	case GameState::room_picker:
+	{
+		// if (shop_button_pressed) {
+			// cur_game_state = GameState::shop;
+			// level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
+			// npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
+			// player->setPosition(sf::Vector2f(200.0f, 400.0f));
+		// }
+
+		// if (challenge_button_pressed) {
+			// cur_game_state = GameState::challenge_wait;
+			// loadChallenge();
+			// ui.resetList();
+		// }
+	}
 	
 	case GameState::moving:
 		if(is_escape_pressed || counter.update(clock)) {
