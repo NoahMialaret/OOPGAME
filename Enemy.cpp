@@ -54,3 +54,10 @@ int Enemy::getHealth() const {
 bool Enemy::isAttacking() const {
     return is_attacking;
 }
+
+void Enemy::setHealth(int amount) {
+	health = amount;
+	if (health > 3) {
+		health = 3;
+	}
+}

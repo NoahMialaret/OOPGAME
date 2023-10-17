@@ -203,3 +203,21 @@ bool Player::hasWeapon(std::string weapon_name) {
 
     return false;
 }
+
+void Player::setCoins(int amount) {
+	coins = amount;
+}
+
+void Player::setArrows(int amount) {
+	arrows = amount;
+	if (arrows > max_arrows) {
+		arrows = max_arrows;
+	}
+}
+
+void Player::setHealth(int amount) {
+	health = amount;
+	if (health > max_health) {
+		health = max_health;
+	}
+}

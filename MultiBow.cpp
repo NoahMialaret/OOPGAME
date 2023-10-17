@@ -2,7 +2,7 @@
 
 MultiBow::MultiBow(int* player_arrows, float game_scale)
     :
-    Bow(20.0f, 1, 30, "Multi-Bow", player_arrows, game_scale)
+    Bow(20.0f, 1, 30, "MultiBow", player_arrows, game_scale)
 {    
     if (!bow_texture.loadFromFile("art/MultiBow.png")) {
 		std::cout << "MultiBow texture could not be loaded!" << std::endl;

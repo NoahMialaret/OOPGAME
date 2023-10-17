@@ -26,8 +26,10 @@ private:
     sf::Texture sprite_sheet;
 
     sf::Vector2i dim = sf::Vector2i(0, 0);
+    
+    int ID = 0;
 public:
-    Level(std::string filename, float game_scale, float sprite_dim);
+    Level(std::string filename, int ID, float game_scale, float sprite_dim);
     void loadDefaultLevel(float game_scale, float sprite_dim);
     void render(sf::RenderWindow* win) const;
 
@@ -37,6 +39,7 @@ public:
     sf::Vector2i getValidSpawnPos(std::mt19937& rng) const;
     Tile& getTile(sf::Vector2i tile_pos);
     const int getTileType(sf::Vector2i tile_pos) const;
+    int getID() const;
 };
 
 #endif

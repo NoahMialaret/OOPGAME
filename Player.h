@@ -57,6 +57,10 @@ public:
     bool addCoins(int amount);
     int* getCoins();
     bool hasWeapon(std::string weapon_name);
+
+    void setCoins(int amount);
+    void setHealth(int amount);
+    void setArrows(int amount);
 };
 
 #endif
