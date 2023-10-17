@@ -1,8 +1,8 @@
 #include "Player.h"
 
-Player::Player(const char *tex_name, float game_scale, sf::Vector2f pos)
+Player::Player(const char *tex_name, float game_scale)
     :
-    Entity(tex_name, game_scale, pos)
+    Entity(tex_name, game_scale, sf::Vector2f(0.0f, 0.0f))
 {}
 
 void Player::update(bool jump_button, bool left_button, bool right_button, sf::Clock* clock) {
@@ -159,6 +159,15 @@ int* Player::getArrows() {
     return &arrows;
 }
 
+bool Player::addArrows(int amount) {
+	if (arrows + amount > max_arrows) {
+		return false;
+	}
+	arrows += amount;
+	return true;
+
+}
+
 bool Player::isStill() {
     return velocity.x == 0.0f && velocity.y == 0.0f;
 }
@@ -169,4 +178,28 @@ bool Player::isInvincible() const {
 
 void Player::setControl(bool control) {
 	can_control = control;
+}
+
+bool Player::addCoins(int amount) {
+	if (coins + amount < 0) {
+		return false;
+	}
+	coins += amount;
+	return true;
+
+}
+
+int *Player::getCoins() {
+    return &coins;
+}
+
+bool Player::hasWeapon(std::string weapon_name) {
+
+	for(auto& w : weapons) {
+		if (w->getName() == weapon_name) {
+			return true;
+		}
+	}
+
+    return false;
 }

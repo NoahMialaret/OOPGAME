@@ -2,7 +2,7 @@
 
 BasicBow::BasicBow(int* player_arrows, float game_scale)
     :
-    Bow(25.0f, 1, 100, "Basic Bow", player_arrows, game_scale)
+    Bow(25.0f, 1, 11, "Basic Bow", player_arrows, game_scale)
 {    
     if (!bow_texture.loadFromFile("art/BasicBow.png")) {
 		std::cout << "BasicBow texture could not be loaded!" << std::endl;

@@ -14,23 +14,24 @@ int main()
 	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
-	Button play_button(&play_button_tex, 400, 300);
+	Button play_button(&play_button_tex, 200,300);
 
 	//white texture and text added to the shop button just for debugging, delete when an actual Shop button is designed
-	Texture white;
-    if (!white.loadFromFile("art/whiteImageForTesting.png", sf::IntRect(0, 0, 50, 20)))
+	Texture shop_button_tex;
+    if (!shop_button_tex.loadFromFile("art/ShopButton.png"))
     {
-        std::cout << "white texture couldnt load" << std::endl;
+        std::cout << "shop button texture couldnt load" << std::endl;
     };
-    Font dogicapixel;
-    if (!dogicapixel.loadFromFile("files/dogicapixel.ttf")) {
-        std::cout << "dogicapixel font couldn't load" << std::endl;
-    }
-    Text shop_button_text; shop_button_text.setString("Shop"); shop_button_text.setFont(dogicapixel); shop_button_text.setCharacterSize(30); shop_button_text.setFillColor(Color::Blue); shop_button_text.setPosition(230,120);
+    Button shop_button(&shop_button_tex,200,100);
 
-    Button shop_button(&white,200,100);
+	//credits button
+	Texture credits_button_tex;
+	if (!credits_button_tex.loadFromFile("art/CreditsButton.png")) {
+		 std::cout << "creidts button texture couldnt load" << std::endl;
+	}
+	Button credits_button(&credits_button_tex,200,400);
 
-	switch (game.mainMenu(&play_button, &shop_button, &shop_button_text)) {
+	switch (game.mainMenu(&play_button, &shop_button, &credits_button)) {
 		case 1:
 			//Main game loop
 			while (game.getCurGameState() != Game::GameState::not_running)
@@ -46,12 +47,18 @@ int main()
 
 				while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);
 			}
-
 			break;
 
 		case 2:
-				game.shop();
-				break;
+			//shop code here
+			break;
+
+		case 3:
+			//credits code here
+			std::cout << "User chose credits" << std::endl;
+			break;
+
+
 	}
 
 	//Cleans game after it has stopped running

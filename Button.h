@@ -23,6 +23,9 @@ class Button {
 
         bool checkClicked(Vector2i position);
 
+        int getSpriteWidth();
+        int getSpriteHeight();
+
         void draw(RenderWindow* win);
 
 };

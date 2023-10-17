@@ -9,7 +9,9 @@
 #include "GameUI.h"
 #include "Level.h"
 #include "NPC.h"
+#include "NumDisplay.h"
 #include "Player.h"
+#include "Shop.h"
 #include "Tile.h"
 
 #include "Weapon.h"
@@ -44,7 +46,6 @@ public:
 		enemy_turn,
 		room_picker,
 		challenge_wait,
-		challenge_view,
 		challenge_mode,
 		shop,
 		roullete
@@ -89,11 +90,15 @@ private:
 	int next_enemy_attack_index = 0;
 
 	std::vector<std::string> main_ui_list;
+
+	int cleared_rooms = -1;
 	
 	//Game Objects ----------------------------------------------------- 
 	std::unique_ptr<Level> level = nullptr;
   
-	Player* player;
+	Player* player = nullptr;
+
+	NPC* npc = nullptr;
 
 	Weapon* cur_weapon = nullptr;
 
@@ -104,6 +109,8 @@ private:
 	GameUI ui;
 
 	sf::Clock* clock;
+
+	Shop* shop = nullptr;
 
 public:
 	Game() = delete;
@@ -120,8 +127,7 @@ public:
 
 	Game::GameState getCurGameState() const; //Returns isRunning
 
-	int mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text);
-	void shop();
+	int mainMenu(Button* play_button, Button* shop_button, Button* credits_button);
 
 private:
 	void gameExit();
@@ -130,8 +136,11 @@ private:
 	void collisionXCorrection(Entity* ent, int top_col_dir, int bottom_col_dir, float ent_x, float col_x);
 	void weaponCollisions();
 	void EnemyCollisions();
+	void NPCChallengeCollision();
 	void shuffleEnemies();
 	void updateMainView();
+	void loadNewLevel();
+	void loadChallenge();
 };
 
 #endif

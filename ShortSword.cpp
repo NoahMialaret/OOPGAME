@@ -2,7 +2,7 @@
 
 ShortSword::ShortSword(float game_scale)
     :
-    Melee(0.0f, 1, 100, "ShortSword", game_scale)
+    Melee(0.0f, 1, 0, "ShortSword", game_scale)
 {    
     sprites.push_back(sf::Sprite(texture));
 

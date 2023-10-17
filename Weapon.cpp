@@ -21,6 +21,10 @@ int Weapon::getDamage() const {
     return damage;
 }
 
+int Weapon::getCost() const {
+    return gold_cost;
+}
+
 bool Weapon::isAttacking() {
     return is_attacking;
 }
