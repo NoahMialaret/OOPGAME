@@ -30,6 +30,16 @@ bool Button::checkClicked(Vector2i position) {
     return false;
 }
 
+int Button::getSpriteWidth() {
+    IntRect textureRect = sprite.getTextureRect();
+    return textureRect.width;
+}
+int Button::getSpriteHeight() {
+    IntRect textureRect = sprite.getTextureRect();
+    return textureRect.height;
+}
+
+
 void Button::draw(RenderWindow* win) {
     win->draw(sprite);
 }

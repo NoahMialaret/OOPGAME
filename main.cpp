@@ -14,11 +14,11 @@ int main()
 	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
-	Button play_button(&play_button_tex, 400, 300);
+	Button play_button(&play_button_tex, 200, 300);
 
 	//white texture and text added to the shop button just for debugging, delete when an actual Shop button is designed
 	Texture shop_button_tex;
-    if (!shop_button_tex.loadFromFile("art/ShopButton.png", sf::IntRect(0, 0, 50, 20)))
+    if (!shop_button_tex.loadFromFile("art/ShopButton.png"))
     {
         std::cout << "shop button texture couldnt load" << std::endl;
     };
@@ -46,6 +46,9 @@ int main()
 
 	//Cleans game after it has stopped running
 	game.clean();
+
+	std::cout << "play button width: " << play_button.getSpriteWidth();
+	std::cout << "play button height: " << play_button.getSpriteHeight();
 
 	return 0;
 }
