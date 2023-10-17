@@ -159,6 +159,15 @@ int* Player::getArrows() {
     return &arrows;
 }
 
+bool Player::addArrows(int amount) {
+	if (arrows + amount > max_arrows) {
+		return false;
+	}
+	arrows += amount;
+	return true;
+
+}
+
 bool Player::isStill() {
     return velocity.x == 0.0f && velocity.y == 0.0f;
 }
@@ -182,4 +191,15 @@ bool Player::addCoins(int amount) {
 
 int *Player::getCoins() {
     return &coins;
+}
+
+bool Player::hasWeapon(std::string weapon_name) {
+
+	for(auto& w : weapons) {
+		if (w->getName() == weapon_name) {
+			return true;
+		}
+	}
+
+    return false;
 }

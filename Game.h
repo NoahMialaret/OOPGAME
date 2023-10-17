@@ -11,6 +11,7 @@
 #include "NPC.h"
 #include "NumDisplay.h"
 #include "Player.h"
+#include "Shop.h"
 #include "Tile.h"
 
 #include "Weapon.h"
@@ -110,6 +111,8 @@ private:
 
 	sf::Clock* clock;
 
+	Shop* shop = nullptr;
+
 public:
 	Game() = delete;
 	Game(const char* title, sf::Clock* clock); //Game constructor
@@ -126,7 +129,6 @@ public:
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 	int mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text);
-	void shop();
 
 private:
 	void gameExit();

@@ -50,11 +50,13 @@ public:
     const int* getHealth();
     bool takeDamage(int damage_amount, sf::Clock* clock);
     int* getArrows();
+    bool addArrows(int amount);
     bool isStill();
     bool isInvincible() const;
     void setControl(bool control);
     bool addCoins(int amount);
     int* getCoins();
+    bool hasWeapon(std::string weapon_name);
 };
 
 #endif

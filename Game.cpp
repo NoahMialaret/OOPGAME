@@ -30,25 +30,25 @@ Game::Game(const char* title, sf::Clock* clock)
 
 	loadNewLevel();
 
-	Weapon* test = new BasicBow(player->getArrows(), game_scale);
+	// Weapon* test = new BasicBow(player->getArrows(), game_scale);
 
-	player->giveWeapon(test);
+	// player->giveWeapon(test);
 
-	Weapon* test1 = new MultiBow(player->getArrows(), game_scale);
+	// Weapon* test1 = new MultiBow(player->getArrows(), game_scale);
 
-	player->giveWeapon(test1);
+	// player->giveWeapon(test1);
 
-	Weapon* test2 = new CrossBow(player->getArrows(), game_scale);
+	// Weapon* test2 = new CrossBow(player->getArrows(), game_scale);
 
-	player->giveWeapon(test2);
+	// player->giveWeapon(test2);
 
-	Weapon* test3 = new BroardSword(game_scale);
+	// Weapon* test3 = new BroardSword(game_scale);
 
-	player->giveWeapon(test3);
+	// player->giveWeapon(test3);
 
-	Weapon* test4 = new Daggers(game_scale);
+	// Weapon* test4 = new Daggers(game_scale);
 
-	player->giveWeapon(test4);
+	// player->giveWeapon(test4);
 
 	Weapon* test5 = new ShortSword(game_scale);
 
@@ -75,15 +75,6 @@ void Game::handleEvents() {
 				cur_game_state = GameState::not_running;
 				break;
 
-			// case sf::Event::Resized: {
-			// 	std::cout << "Window resize event called." << std::endl;
-
-			// 	sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-        	// 	window.setView(sf::View(visibleArea));
-			// 	main_view = window.getDefaultView();
-			// 	break;
-			// }
-
 			case sf::Event::MouseButtonPressed:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
@@ -104,7 +95,6 @@ void Game::handleEvents() {
 				break;
 
 			case sf::Event::KeyPressed:
-				//std::cout << "Key press event called." << std::endl;
 
 				switch (event.key.code) {
 					case sf::Keyboard::D:
@@ -127,14 +117,6 @@ void Game::handleEvents() {
 						is_space_pressed = true;
 						break;
 
-					// case sf::Keyboard::R:
-					// 	player->reset();
-					// 	break;
-
-					// case sf::Keyboard::LShift:
-					// 	shuffleEnemies();
-					// 	break;
-
 					case sf::Keyboard::Escape:
 						is_escape_pressed = true;
 						break;
@@ -142,7 +124,6 @@ void Game::handleEvents() {
 				break;
 				
 			case sf::Event::KeyReleased:
-				//std::cout << "Key released event called." << std::endl;
 
 				switch (event.key.code) {
 					case sf::Keyboard::D:
@@ -421,11 +402,14 @@ void Game::update() {
 	{
 		if (ui.isListEmpty() && player->isStill()) {
 			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
-			std::vector<std::string> shop_list = {"Exit"};
+			std::vector<std::string> shop_list = {"Exit shop", "Arrow - 5 Coins"};
 			ui.makeList(shop_list, list_position);
 			is_mouse_pressed = false;
+			shop = new Shop(rng, player, player->getArrows(), game_scale);
 			return;
 		}
+
+		shop->update(mouse_sprite.getPosition(), is_mouse_pressed);
 
 		int list_index = ui.update(mouse_sprite.getPosition());
 
@@ -446,6 +430,20 @@ void Game::update() {
 			cur_game_state = GameState::action_menu;
 			delete npc;
 			npc = nullptr;
+			delete shop;
+			break;
+
+		case 1: // Buy arrow
+			std::cout << "Buying an arrow..." << std::endl;
+			if(player->addCoins(-5)) {
+				if (!player->addArrows(1)) {
+					std::cout << "You have the max amount of arrows (10), giving coins back." << std::endl;
+					player->addCoins(5);
+				}
+			}
+			else {
+				std::cout << "Not enough coins for arrows, need at least 5 coins!" << std::endl;
+			}
 			break;
 		
 		default:
@@ -519,9 +517,14 @@ void Game::render() {
 
 	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
 	
-	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list || cur_game_state == GameState::shop) {
+	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list) {
 		ui.renderList(&window);
 	}
+
+	if(cur_game_state == GameState::shop) {
+		ui.renderList(&window);
+		shop->render(&window);
+		}
 
 	window.draw(mouse_sprite);
 
@@ -791,7 +794,7 @@ void Game::loadNewLevel() {
 
 	player->setPosition(new_pos);
 
-	for (int i = 0; i < 2; i++)	{
+	for (int i = 0; i < 4; i++)	{
 		enemies.push_back(new Enemy("art/Enemy.png", game_scale));
 	}
 
@@ -835,32 +838,4 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_t
 	}
 
 	return 1;
-}
-
-//temporary method to show that shop has been selected (debugging only)
-void Game::shop() {
-	while (window.isOpen()) {
-		sf::Font dogicapixel;
-		if (!dogicapixel.loadFromFile("files/dogicapixel.ttf")) {
-			std::cout << "dogipixel couldnt load inside shop method" << std::endl;
-		}
-		sf::Text shop_text;
-		shop_text.setFont(dogicapixel);
-		shop_text.setString("Shop coming soon!");
-		shop_text.setFillColor(sf::Color::Red);
-		shop_text.setPosition(300.f,400.f);
-
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed) {
-				window.close();
-			}
-		}
-
-		window.clear();
-
-		window.draw(shop_text);
-
-		window.display();
-	} 
 }

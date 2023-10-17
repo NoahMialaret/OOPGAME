@@ -48,10 +48,6 @@ int main()
 			}
 
 			break;
-
-		case 2:
-				game.shop();
-				break;
 	}
 
 	//Cleans game after it has stopped running
