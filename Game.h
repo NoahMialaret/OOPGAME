@@ -149,6 +149,18 @@ private:
 	void updateMainView();
 	void loadNewLevel();
 	void loadChallenge();
+
+	void updateActionMenu();
+	void updateMoving();
+	void updateWeaponsList();
+	void updateAttack();
+	void updateEnemyTurn();
+	void updateRoomPicker();
+	void updateShop();
+	void updateChallengeWait();
+	void updateChallengeMode();
+	void updateRoulette();
+	void updateLevelViewer();
 };
 
 #endif
