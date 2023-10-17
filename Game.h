@@ -128,7 +128,7 @@ public:
 
 	Game::GameState getCurGameState() const; //Returns isRunning
 
-	int mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text);
+	int mainMenu(Button* play_button, Button* shop_button);
 
 private:
 	void gameExit();
