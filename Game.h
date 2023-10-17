@@ -58,6 +58,10 @@ private:
 	sf::Texture mouse_tex;
 	sf::Sprite mouse_sprite;
 
+	sf::Texture shop_button_tex;
+	sf::Texture challenge_button_tex;
+	sf::Texture roulette_button_tex;
+
 	sf::Mouse mouse;
 
 	sf::View main_view;
@@ -112,6 +116,10 @@ private:
 
 	Shop* shop = nullptr;
 
+	Button* shop_button;
+	Button* challenge_button;
+	Button* roulette_button;
+
 public:
 	Game() = delete;
 	Game(const char* title, sf::Clock* clock); //Game constructor
@@ -141,6 +149,18 @@ private:
 	void updateMainView();
 	void loadNewLevel();
 	void loadChallenge();
+
+	void updateActionMenu();
+	void updateMoving();
+	void updateWeaponsList();
+	void updateAttack();
+	void updateEnemyTurn();
+	void updateRoomPicker();
+	void updateShop();
+	void updateChallengeWait();
+	void updateChallengeMode();
+	void updateRoulette();
+	void updateLevelViewer();
 };
 
 #endif

@@ -32,6 +32,7 @@ int main()
 	Button credits_button(&credits_button_tex,200,400);
 
 	switch (game.mainMenu(&play_button, &shop_button, &credits_button)) {
+
 		case 1:
 			//Main game loop
 			while (game.getCurGameState() != Game::GameState::not_running)
