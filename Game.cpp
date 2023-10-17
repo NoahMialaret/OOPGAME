@@ -769,15 +769,15 @@ void Game::updateMainView() {
 	sf::Vector2f player_centre(player->getPosition().x + game_scale * sprite_dimensions / 2, player->getPosition().y + game_scale * sprite_dimensions / 2);
 	main_view.setCenter(player_centre);
 
-	if(main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
-		main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
+	if(main_view.getCenter().y + main_view.getSize().y / 2 > (level.get()->getLevelDim().y + 1) * game_scale * sprite_dimensions) {
+		main_view.setCenter(main_view.getCenter().x, ((level.get()->getLevelDim().y + 1) * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
 	}
 
 	if(main_view.getCenter().x - main_view.getSize().x / 2 < 0) {
 		main_view.setCenter(main_view.getSize().x / 2, main_view.getCenter().y);
 	}
 	else if (main_view.getCenter().x + main_view.getSize().x / 2 > level.get()->getLevelDim().x * game_scale * sprite_dimensions) {
-		main_view.setCenter((level.get()->getLevelDim().x * game_scale * sprite_dimensions)- main_view.getSize().x / 2, main_view.getCenter().y);
+		main_view.setCenter((level.get()->getLevelDim().x * game_scale * sprite_dimensions) - main_view.getSize().x / 2, main_view.getCenter().y);
 	}
 	window.setView(main_view);
 
