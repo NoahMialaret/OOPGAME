@@ -1,3 +1,12 @@
 [Shopkeeper]
 Hello, welcome to my shop!
 What do you want to buy?
+
+credits
+test
+1
+2
+3
+4
+awdakjfiueafhiuafiaiuf
+awdad

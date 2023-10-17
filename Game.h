@@ -3,7 +3,9 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Button.h"
 #include "Counter.h"
+#include "Dialogue.h"
 #include "Enemy.h"
 #include "Entity.h"
 #include "GameUI.h"
@@ -24,11 +26,10 @@
 #include "ShortSword.h"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
-
-#include "Button.h"
 
 //Game object handles most of the game proccesses and is responsible for updating and rendering
 class Game {
@@ -125,9 +126,12 @@ private:
 	Button* challenge_button;
 	Button* roulette_button;
 
+	Dialogue dialogue;
+
 public:
 	Game() = delete;
 	Game(const char* title, sf::Clock* clock); //Game constructor
+	void save();
 
 	//Basic gmae loop functions
 	void handleEvents();	 //Handles SFML events
@@ -141,6 +145,7 @@ public:
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 	void mainMenu();
+
 
 private:
 	void gameExit();

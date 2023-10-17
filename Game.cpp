@@ -198,9 +198,24 @@ void Game::handleEvents() {
 
 void Game::update() {
 
+	if (cur_game_state == GameState::not_running) {
+		return;
+	}
+
 	if (*player->getHealth() <= 0) {
 		cur_game_state = GameState::title;
 		std::cout << "Player is dead, returning to title!" << std::endl;
+		return;
+	}
+
+	if (dialogue_active) {
+		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
+		if (is_mouse_pressed) {
+			if (dialogue.readLine()) {
+				dialogue_active = false;
+			}
+		}
+		is_mouse_pressed = false;
 		return;
 	}
 
@@ -314,17 +329,20 @@ void Game::update() {
 }
 
 void Game::render() {
-	window.clear(sf::Color(34, 0, 92));
-
-	if (dialogue_active) {
-		//render dialogue
+	if (cur_game_state == GameState::not_running) {
+		return;
 	}
+
+	window.clear(sf::Color(34, 0, 92));
 
 	if (cur_game_state == GameState::title) {
 		play_button->draw(&window);
 		close_button->draw(&window);
 		credits_button->draw(&window);
 		window.draw(mouse_sprite);
+		if (dialogue_active) {
+			dialogue.render(&window);
+		}
 		window.display();	
 		return;
 	}
@@ -372,6 +390,10 @@ void Game::render() {
 		shop_button->draw(&window);
 		challenge_button->draw(&window);
 		roulette_button->draw(&window);
+	}
+
+	if (dialogue_active) {
+		dialogue.render(&window);
 	}
 
 	window.draw(mouse_sprite);
@@ -1045,7 +1067,7 @@ void Game::mainMenu() {
 
 	if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
 		std::cout << "Showing credits!" << std::endl;
-		// Show dialogue for credits
+		dialogue.startDialogue("credits");
 		dialogue_active = true;
 	}
 

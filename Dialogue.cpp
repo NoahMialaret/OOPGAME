@@ -19,15 +19,13 @@ Dialogue::Dialogue() {
     text.setCharacterSize(16); // in pixels, not points!
     text.setFillColor(sf::Color::White);
 
-    text.setPosition(sf::Vector2f(135, 110));
-    
-    
+    text.setPosition(sf::Vector2f(135, 110));    
 }
 
 void Dialogue::startDialogue(std::string name){
 
     std::string filename = "files/dialogue.txt"; // Set the filename
-    text.setFont(font); // font is a sf::Font 
+    text.setFont(font); 
     
     if (file.is_open()) {
         file.close();
@@ -69,13 +67,8 @@ bool Dialogue::readLine(){
 }
 
 void Dialogue::render(sf::RenderWindow* win) {
-
-
-    std::cout << "Is rendering" << std::endl;
-    // inside the main loop, between window.clear() and window.display()
     win->draw(rectangle);
     win->draw(text);
-    
 }
 
 
