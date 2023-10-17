@@ -732,7 +732,7 @@ void Game::updateMainView() {
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
 }
 
-int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_text) {
+int Game::mainMenu(Button* play_button, Button* shop_button) {
 	while(window.isOpen()) {
 		sf::Event play_event;
 
@@ -761,7 +761,6 @@ int Game::mainMenu(Button* play_button, Button* shop_button, Text* shop_button_t
 
 		play_button->draw(&window);
 		shop_button->draw(&window);
-		window.draw(*shop_button_text);
 		window.draw(mouse_sprite);
 
 		window.display();
