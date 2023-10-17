@@ -24,7 +24,13 @@ Game::Game(const char* title, sf::Clock* clock)
 	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
-	play_button = new Button(&play_button_tex, 200,200);
+	play_button = new Button(&play_button_tex, 200,100);
+
+	//creating the play button:
+	if(!resume_button_tex.loadFromFile("art/ResumeSaveButton.png")) {
+		std::cout << "resume button texture couldn't load" << std::endl;
+	}
+	resume_button = new Button(&resume_button_tex, 200,200);
 
 	//credits button
 	if (!credits_button_tex.loadFromFile("art/CreditsButton.png")) {
@@ -60,37 +66,8 @@ Game::Game(const char* title, sf::Clock* clock)
 	mouse_sprite.setTexture(mouse_tex, true);
 	mouse_sprite.setScale(sf::Vector2f(game_scale, game_scale));
 
-	std::cout << "Enabling Title play." << std::endl;
+	std::cout << "Enabling Title screen." << std::endl;
 	cur_game_state = GameState::title;
-
-	player = new Player("art/Player.png", game_scale);
-
-	// Weapon* test = new BasicBow(player->getArrows(), game_scale);
-
-	// player->giveWeapon(test);
-
-	// Weapon* test1 = new MultiBow(player->getArrows(), game_scale);
-
-	// player->giveWeapon(test1);
-
-	// Weapon* test2 = new CrossBow(player->getArrows(), game_scale);
-
-	// player->giveWeapon(test2);
-
-	// Weapon* test3 = new BroardSword(game_scale);
-
-	// player->giveWeapon(test3);
-
-	// Weapon* test4 = new Daggers(game_scale);
-
-	// player->giveWeapon(test4);
-
-	Weapon* shortsword = new ShortSword(game_scale);
-
-	player->giveWeapon(shortsword);
-
-	ui = GameUI(player->getHealth(), player->getArrows(), player->getCoins());
-	ui.setSprites(game_scale);
 
 	main_ui_list.push_back("Move");
 	main_ui_list.push_back("Weapon");
@@ -99,48 +76,245 @@ Game::Game(const char* title, sf::Clock* clock)
 	main_ui_list.push_back("End Turn");
 }
 
-void Game::save() {
+void Game::loadFromSave() {
+	std::ifstream file("files/save.txt");
 
-	std::cout << "Saving game" << std::endl;
+	if (!file) {
+		std::cout << "Could not open save, loading new save...";
+		loadNewGame();
+		loadNewLevel();
+		cur_game_state = GameState::starting_play;
+		return;
+	}
+
+	std::string fileline;
+	while (std::getline(file, fileline)) {
+		if (fileline == "PlayerStats")	{
+			player = new Player("art/Player.png", game_scale);
+
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			player->setHealth(std::stoi(fileline));
+
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			player->setArrows(std::stoi(fileline));
+
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			player->setCoins(std::stoi(fileline));
+
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			float x_pos = std::stof(fileline);
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			float y_pos = std::stof(fileline);
+			player->setPosition(sf::Vector2f(x_pos, y_pos));
+		}
+
+		if (fileline == "Weapons")	{
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			while(fileline.size() != 0) {
+
+				if (fileline == "ShortSword") {
+					Weapon* temp = new ShortSword(game_scale);
+					player->giveWeapon(temp);
+				}
+				else if (fileline == "Daggers") {
+					Weapon* temp = new Daggers(game_scale);
+					player->giveWeapon(temp);
+				}
+				else if (fileline == "BroardSword") {
+					Weapon* temp = new BroardSword(game_scale);
+					player->giveWeapon(temp);
+				}
+				else if (fileline == "BasciBow") {
+					Weapon* temp = new BasicBow(player->getArrows(), game_scale);
+					player->giveWeapon(temp);
+				}
+				else if (fileline == "MultiBow") {
+					Weapon* temp = new MultiBow(player->getArrows(), game_scale);
+					player->giveWeapon(temp);
+				}
+				else if (fileline == "CrossBow") {
+					Weapon* temp = new CrossBow(player->getArrows(), game_scale);
+					player->giveWeapon(temp);
+				}
+
+				std::getline(file, fileline);
+				std::cout << fileline << std::endl;
+			}
+
+		}
+
+		if (fileline == "Enemies") {
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			while(fileline.size() != 0) {
+				enemies.push_back(new Enemy("art/Enemy.png", game_scale));
+				
+				enemies[enemies.size() - 1]->setHealth(std::stoi(fileline));
+
+				std::getline(file, fileline);
+				std::cout << fileline << std::endl;
+				float x_pos = std::stof(fileline);
+				std::getline(file, fileline);
+				std::cout << fileline << std::endl;
+				float y_pos = std::stof(fileline);
+				enemies[enemies.size() - 1]->teleport(sf::Vector2f(x_pos, y_pos));
+
+				std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			}			
+		}
+
+		if (fileline == "Level") {
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			loadNewLevel(fileline);
+
+			std::getline(file, fileline);
+			std::cout << fileline << std::endl;
+			cleared_rooms = std::stoi(fileline);
+		}
+	}
+
+	ui = GameUI(player->getHealth(), player->getArrows(), player->getCoins());
+	ui.setSprites(game_scale);
+	has_moved = false;
+}
+
+void Game::loadNewGame() {
+	player = new Player("art/Player.png", game_scale);
+
+	Weapon* shortsword = new ShortSword(game_scale);
+
+	player->giveWeapon(shortsword);
+
+	ui = GameUI(player->getHealth(), player->getArrows(), player->getCoins());
+	ui.setSprites(game_scale);
+	has_moved = false;
+}
+
+void Game::save()
+{
+    std::cout << "Saving game" << std::endl;
 
 	std::ofstream file("files/save.txt");
 
-	std::string layoutStr = "PlayerStats";
-	//Layout Writing ---------------------------------------
-	for (size_t i = 0; i < layoutStr.size(); i++)
+	std::string playerStr = "PlayerStats";
+	for (size_t i = 0; i < playerStr.size(); i++)
 	{
-		file.put(layoutStr[i]);
+		file.put(playerStr[i]);
 	}
 	file.put('\n');
 
-	for (int y = 0; y < height; y++)
+	std::string health = intToString(*player->getHealth());
+	for (size_t i = 0; i < health.size(); i++)
 	{
-		for (int x = 0; x < width; x++)
+		file.put(health[i]);
+	}
+	file.put('\n');
+
+	std::string arrows = intToString(*player->getArrows());
+	for (size_t i = 0; i < arrows.size(); i++)
+	{
+		file.put(arrows[i]);
+	}
+	file.put('\n');
+
+	std::string coins = intToString(*player->getCoins());
+	for (size_t i = 0; i < coins.size(); i++)
+	{
+		file.put(coins[i]);
+	}
+	file.put('\n');
+
+	std::string pos_x = intToString((int)player->getPosition().x);
+	for (size_t i = 0; i < pos_x.size(); i++)
+	{
+		file.put(pos_x[i]);
+	}
+	file.put('\n');
+
+	std::string pos_y = intToString((int)player->getPosition().y);
+	for (size_t i = 0; i < pos_y.size(); i++)
+	{
+		file.put(pos_y[i]);
+	}
+	file.put('\n');
+	file.put('\n');
+
+	std::string weaponsStr = "Weapons";
+	for (size_t i = 0; i < weaponsStr.size(); i++)
+	{
+		file.put(weaponsStr[i]);
+	}
+	file.put('\n');
+
+	for(auto& w : player->getWeaponNames()) {
+		for (size_t i = 0; i < w.size(); i++)
 		{
-			//TileID takes the form xyy where x is collision and y is tile type
-			std::string tileID;
-
-			if ((int)TileAt(iVec2D(x, y)).colType != 0)
-			{
-				int i = 0;
-			}
-
-			tileID.append(IntToString((int)TileAt(iVec2D(x, y)).colType));
-
-			int typeint = (int)TileAt(iVec2D(x, y)).type;	
-			if (typeint < 10)
-			{
-				tileID.push_back('0');
-			}
-
-			tileID.append(IntToString(typeint));
-			for (size_t i = 0; i < tileID.size(); i++)
-			{
-				file.put(tileID[i]);
-			}
+			file.put(w[i]);
 		}
 		file.put('\n');
 	}
+	file.put('\n');
+
+	std::string enemyStr = "Enemies";
+	for (size_t i = 0; i < enemyStr.size(); i++)
+	{
+		file.put(enemyStr[i]);
+	}
+	file.put('\n');
+
+	for(auto& e : enemies) {
+
+		std::string health = intToString(e->getHealth());
+		for (size_t i = 0; i < health.size(); i++)
+		{
+			file.put(health[i]);
+		}
+		file.put('\n');
+		
+		std::string x_pos = intToString((int)e->getPosition().x);
+		for (size_t i = 0; i < x_pos.size(); i++)
+		{
+			file.put(x_pos[i]);
+		}
+		file.put('\n');
+
+		std::string y_pos = intToString((int)e->getPosition().y);
+		for (size_t i = 0; i < y_pos.size(); i++)
+		{
+			file.put(y_pos[i]);
+		}
+		file.put('\n');
+	}
+	file.put('\n');
+
+	std::string levelStr = "Level";
+	for (size_t i = 0; i < levelStr.size(); i++)
+	{
+		file.put(levelStr[i]);
+	}
+	file.put('\n');
+
+	std::string level_id = intToString(level.get()->getID());
+	for (size_t i = 0; i < level_id.size(); i++)
+	{
+		file.put(level_id[i]);
+	}
+	file.put('\n');
+
+	std::string room_count = intToString(cleared_rooms);
+	for (size_t i = 0; i < room_count.size(); i++)
+	{
+		file.put(room_count[i]);
+	}
+	file.put('\n');
 }
 
 void Game::handleEvents() {
@@ -193,9 +367,12 @@ void Game::handleEvents() {
 						break;
 
 					case sf::Keyboard::T:
-						cur_game_state = GameState::title;
-						main_view.setCenter(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
-						window.setView(main_view);
+						if (cur_game_state != GameState::title) {
+							cur_game_state = GameState::title;
+							main_view.setCenter(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+							window.setView(main_view);
+							reset();
+						}
 						break;
 
 					case sf::Keyboard::Space:
@@ -242,12 +419,11 @@ void Game::handleEvents() {
 
 void Game::update() {
 
-	if (*player->getHealth() <= 0) {
+	if (cur_game_state != GameState::title && *player->getHealth() <= 0) {
 		cur_game_state = GameState::title;
 		std::cout << "Player is dead, returning to title!" << std::endl;
 		return;
 	}
-
 
 	if (enemies.size() == 0 && cur_game_state == GameState::action_menu) {
 		std::cout << "All enemies have been defeated! Now pick your next room..." << std::endl;
@@ -290,11 +466,9 @@ void Game::update() {
 		}
 	}
 
-
 	if (cur_game_state != GameState::level_viewer && cur_game_state != GameState::room_picker && cur_game_state != GameState::title) {
 		updateMainView();
 	}
-
 
 	switch (cur_game_state) {
 		case GameState::title:
@@ -302,7 +476,6 @@ void Game::update() {
 			break;
 
 		case GameState::starting_play:
-			shuffleEnemies();
 			cur_game_state = GameState::action_menu;
 			break;
 
@@ -358,6 +531,7 @@ void Game::update() {
 }
 
 void Game::render() {
+
 	window.clear(sf::Color(34, 0, 92));
 
 	if (dialogue_active) {
@@ -366,6 +540,7 @@ void Game::render() {
 
 	if (cur_game_state == GameState::title) {
 		play_button->draw(&window);
+		resume_button->draw(&window);
 		close_button->draw(&window);
 		credits_button->draw(&window);
 		window.draw(mouse_sprite);
@@ -391,6 +566,7 @@ void Game::render() {
 	{
 		cur_weapon->render(&window);
 	}
+	
 
 	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
 		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
@@ -410,7 +586,7 @@ void Game::render() {
 	if (cur_game_state == GameState::shop && shop != nullptr) {
 		ui.renderList(&window);
 		shop->render(&window);
-		}
+	}
 
 	if (cur_game_state == GameState::room_picker) {
 		shop_button->draw(&window);
@@ -477,12 +653,7 @@ void Game::handleCollision(Entity* ent, sf::Vector2f prev_pos) {
 	}
 }
 
-void Game::clean() {
-
-	save();
-
-	window.close();
-	
+void Game::reset() {
 	delete player;
 
 	delete npc;
@@ -490,6 +661,14 @@ void Game::clean() {
 	for(auto& i : enemies) {
 		delete i;
 	}
+	enemies.clear();
+}
+
+void Game::clean() {
+
+	window.close();
+
+	reset();
 
 	delete play_button;
 	delete credits_button;
@@ -706,7 +885,7 @@ void Game::updateMainView() {
 void Game::loadNewLevel() {
 	cleared_rooms++;
 	std::cout << "loading new level! You have cleared " << cleared_rooms << " levels." << std::endl;
-  	level = std::make_unique<Level>("level_1.txt", game_scale, sprite_dimensions);
+  	level = std::make_unique<Level>("level_1.txt", 1, game_scale, sprite_dimensions);
 	
 	sf::Vector2i new_grid_pos = level.get()->getValidSpawnPos(rng);
 	sf::Vector2f new_pos(game_scale * sprite_dimensions * new_grid_pos.x, game_scale * sprite_dimensions * new_grid_pos.y);
@@ -719,11 +898,21 @@ void Game::loadNewLevel() {
 	}
 
 	shuffleEnemies();
+
+	save();
+}
+
+void Game::loadNewLevel(std::string levelID) {
+	cleared_rooms++;
+	std::cout << "loading new level! You have cleared " << cleared_rooms << " levels." << std::endl;
+  	level = std::make_unique<Level>("level_" + levelID + ".txt", 1, game_scale, sprite_dimensions);
+	
+	player->setVelocity(sf::Vector2f(0.0f, 0.0f));
 }
 
 void Game::loadChallenge() {
 	std::cout << "loading the challenge level!" << std::endl;
-  	level = std::make_unique<Level>("challenge_1.txt", game_scale, sprite_dimensions);
+  	level = std::make_unique<Level>("challenge_1.txt", -1, game_scale, sprite_dimensions);
 	
 	player->setPosition(sf::Vector2f(10.0f, (level.get()->getLevelDim().y - 2) * game_scale * sprite_dimensions));
 
@@ -900,6 +1089,7 @@ void Game::updateEnemyTurn()
 				shuffleEnemies();
 				has_moved = false;
 				cur_game_state = GameState::action_menu;
+				save();
 			}
 		}
 	}
@@ -914,7 +1104,7 @@ void Game::updateRoomPicker() {
 	if (shop_button->checkClicked(sf::Mouse::getPosition(window))) {
 		std::cout << "Shop button pressed!" << std::endl;
 		cur_game_state = GameState::shop;
-		level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
+		level = std::make_unique<Level>("shop.txt", -1, game_scale, sprite_dimensions);
 		npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
 		player->setPosition(sf::Vector2f(200.0f, 400.0f));
 		ui.resetList();
@@ -1094,7 +1284,16 @@ void Game::mainMenu() {
 	if (play_button->checkClicked(sf::Mouse::getPosition(window))) {
 		std::cout << "Starting the game!" << std::endl;
 		cur_game_state = GameState::starting_play;
+		loadNewGame();
 		loadNewLevel();
+		updateMainView();
+	}
+
+	if (resume_button->checkClicked(sf::Mouse::getPosition(window))) {
+		std::cout << "Opening save game!" << std::endl;
+		cur_game_state = GameState::starting_play;
+		loadFromSave();
+		updateMainView();
 	}
 
 	if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {

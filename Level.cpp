@@ -1,6 +1,9 @@
 #include "Level.h"
 
-Level::Level(std::string filename, float game_scale, float sprite_dim) {
+Level::Level(std::string filename, int ID, float game_scale, float sprite_dim) 
+    :
+    ID(ID)
+{
 
 	if (!sprite_sheet.loadFromFile("art/Tiles.png")) {
 		std::cout << "Level sprite sheet could not be loaded! Loading default level without textures." << std::endl;
@@ -117,4 +120,9 @@ const int Level::getTileType(sf::Vector2i tile_pos) const {
         return (int)TileType::empty;
     }
     return tiles[tile_pos.y * dim.x + tile_pos.x].getType();
+}
+
+int Level::getID() const
+{
+    return ID;
 }

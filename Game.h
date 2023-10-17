@@ -59,6 +59,7 @@ private:
 	sf::Sprite mouse_sprite;
 
 	sf::Texture play_button_tex;
+	sf::Texture resume_button_tex;
 	sf::Texture credits_button_tex;
 	sf::Texture close_button_tex;
 	sf::Texture shop_button_tex;
@@ -118,7 +119,9 @@ private:
 	sf::Clock* clock;
 
 	Shop* shop = nullptr;
+
 	Button* play_button;
+	Button* resume_button;
 	Button* credits_button;
 	Button* close_button;
 	Button* shop_button;
@@ -128,6 +131,9 @@ private:
 public:
 	Game() = delete;
 	Game(const char* title, sf::Clock* clock); //Game constructor
+	void loadFromSave();
+	void loadNewGame();
+	void save();
 
 	//Basic gmae loop functions
 	void handleEvents();	 //Handles SFML events
@@ -137,12 +143,12 @@ public:
 	void handleCollision(Entity* ent, sf::Vector2f prev_pos);
 
 	void clean();			 //Destroys and cleans multiple proccesses upon termination
+	void reset();
 
 	Game::GameState getCurGameState() const; //Returns isRunning
 
 	void mainMenu();
 
-	void save();
 
 private:
 	void gameExit();
@@ -155,7 +161,9 @@ private:
 	void shuffleEnemies();
 	void updateMainView();
 	void loadNewLevel();
+	void loadNewLevel(std::string levelID);
 	void loadChallenge();
+	std::string intToString(int number);
 
 	void updateActionMenu();
 	void updateMoving();
