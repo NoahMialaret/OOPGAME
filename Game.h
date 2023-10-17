@@ -46,7 +46,6 @@ public:
 		enemy_turn,
 		room_picker,
 		challenge_wait,
-		challenge_view,
 		challenge_mode,
 		shop,
 		roullete
@@ -140,6 +139,7 @@ private:
 	void shuffleEnemies();
 	void updateMainView();
 	void loadNewLevel();
+	void loadChallenge();
 };
 
 #endif

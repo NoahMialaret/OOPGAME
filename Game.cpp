@@ -166,10 +166,12 @@ void Game::update() {
 
 	if (enemies.size() == 0 && cur_game_state == GameState::action_menu) {
 		std::cout << "All enemies have been defeated!" << std::endl;
-		cur_game_state = GameState::shop;
-		level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
-		npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
-		player->setPosition(sf::Vector2f(200.0f, 400.0f));
+		// cur_game_state = GameState::shop;
+		// level = std::make_unique<Level>("shop.txt", game_scale, sprite_dimensions);
+		// npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
+		// player->setPosition(sf::Vector2f(200.0f, 400.0f));
+		cur_game_state = GameState::challenge_wait;
+		loadChallenge();
 		ui.resetList();
 	}
 
@@ -219,11 +221,20 @@ void Game::update() {
 		break;
 	
 	case GameState::moving:
-	case GameState::challenge_mode:
 		if(is_escape_pressed || counter.update(clock)) {
 			cur_game_state = GameState::action_menu;
 			has_moved = true;
 			player->setControl(false);
+		}
+		break;
+
+	case GameState::challenge_mode:
+		if(counter.update(clock)) {
+			std::cout << "You ran out of time! Better luck next time." << std::endl;
+			player->setControl(false);
+			loadNewLevel();
+			cur_game_state = GameState::action_menu;
+			ui.resetList();
 		}
 		break;
 
@@ -380,6 +391,7 @@ void Game::update() {
 
 		case 3: // View Level
 			std::cout << "Entering level viewer..." << std::endl;
+			prev_game_state = cur_game_state;
 			cur_game_state = GameState::level_viewer;
 			break;
 
@@ -451,11 +463,61 @@ void Game::update() {
 		}
 		break;
 	}
+
+	case GameState::challenge_wait:
+	{
+		if (ui.isListEmpty() && player->isStill()) {
+			sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
+			std::vector<std::string> challenge_list = {"GO!", "View Level", "Exit"};
+			ui.makeList(challenge_list, list_position);
+			is_mouse_pressed = false;
+			return;
+		}
+
+		int list_index = ui.update(mouse_sprite.getPosition());
+
+		if (!is_mouse_pressed) {
+			return;
+		}
+
+		switch (list_index)
+		{
+		case -1: // Nothing
+			std::cout << "Nothing was pressed..." << std::endl;
+			break;
+
+		case 0: // GO!
+			std::cout << "Good Luck!" << std::endl;
+			cur_game_state = GameState::challenge_mode;
+			counter = Counter(clock, 20);
+			counter.setSprite(game_scale);
+			player->setControl(true);
+			break;
+
+		case 1: // View Level
+			std::cout << "Entering level viewer..." << std::endl;
+			prev_game_state = cur_game_state;
+			cur_game_state = GameState::level_viewer;
+			break;
+
+		case 2: // Exit
+			std::cout << "Exiting Challenge." << std::endl;
+			ui.resetList();
+			loadNewLevel();
+			cur_game_state = GameState::action_menu;
+			break;
+		
+		default:
+			break;
+		}
+		break;
+	}
+
 	case GameState::level_viewer:
 	{
 		if (is_escape_pressed) {
 			ui.resetList();
-			cur_game_state = GameState::action_menu;
+			cur_game_state = prev_game_state;
 		}
 		float speed = 8.0f;
 		sf::Vector2f move( is_d_pressed * speed - is_a_pressed * speed, is_s_pressed * speed - is_w_pressed * speed);
@@ -464,8 +526,8 @@ void Game::update() {
 		if(main_view.getCenter().y < 0.0f) {
 			main_view.setCenter(main_view.getCenter().x, 0.0f);
 		}
-		else if (main_view.getCenter().y + main_view.getSize().y / 2 > level.get()->getLevelDim().y * game_scale * sprite_dimensions) {
-			main_view.setCenter(main_view.getCenter().x, (level.get()->getLevelDim().y * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
+		else if (main_view.getCenter().y + main_view.getSize().y / 2 > (level.get()->getLevelDim().y + 1) * game_scale * sprite_dimensions) {
+			main_view.setCenter(main_view.getCenter().x, ((level.get()->getLevelDim().y + 1) * game_scale * sprite_dimensions) - main_view.getSize().y / 2);
 		}
 
 		if(main_view.getCenter().x - main_view.getSize().x / 2 < 0.0f) {
@@ -511,13 +573,14 @@ void Game::render() {
 		cur_weapon->render(&window);
 	}
 
-	if (cur_game_state == GameState::moving) {
+	if (cur_game_state == GameState::moving || cur_game_state == GameState::challenge_mode) {
 		counter.render(&window, sf::Vector2f(window.getView().getCenter().x,window.getView().getCenter().y - window.getSize().y / 2 + 30.0f));
 	}
 
 	ui.renderMain(&window,  sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2,window.getView().getCenter().y - window.getSize().y / 2));
 	
-	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list) {
+	if(cur_game_state == GameState::action_menu || cur_game_state == GameState::weapons_list 
+		|| cur_game_state == GameState::challenge_wait) {
 		ui.renderList(&window);
 	}
 
@@ -718,7 +781,9 @@ void Game::EnemyCollisions() {
 			if (!player->isInvincible() || cur_game_state != GameState::enemy_turn) {
 				sf::Vector2f knockback((player->getPosition().x - e->getPosition().x) / (game_scale), 
 					(player->getPosition().y - e->getPosition().y) / (game_scale));
-
+				if (knockback.x == 0.0f) {
+					knockback.x = 0.5f;
+				}
 				player->setVelocity(knockback);
 			}
 			player->takeDamage(1, clock);
@@ -794,11 +859,18 @@ void Game::loadNewLevel() {
 
 	player->setPosition(new_pos);
 
-	for (int i = 0; i < 4; i++)	{
+	for (int i = 0; i < 1; i++)	{
 		enemies.push_back(new Enemy("art/Enemy.png", game_scale));
 	}
 
 	shuffleEnemies();
+}
+
+void Game::loadChallenge() {
+	std::cout << "loading the challenge level!" << std::endl;
+  	level = std::make_unique<Level>("challenge_1.txt", game_scale, sprite_dimensions);
+	
+	player->setPosition(sf::Vector2f(10.0f, (level.get()->getLevelDim().y - 2) * game_scale * sprite_dimensions));
 }
 
 int Game::mainMenu(Button* play_button, Button* shop_button) {
