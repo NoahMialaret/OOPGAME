@@ -14,9 +14,25 @@ int main()
 	if(!play_button_tex.loadFromFile("art/NewGameButton.png")) {
 		std::cout << "play button texture couldn't load" << std::endl;
 	}
-	Button play_button(&play_button_tex, 400, 300);
+	Button play_button(&play_button_tex, 200,300);
 
-	switch (game.mainMenu(&play_button)) {
+	//white texture and text added to the shop button just for debugging, delete when an actual Shop button is designed
+	Texture shop_button_tex;
+    if (!shop_button_tex.loadFromFile("art/ShopButton.png"))
+    {
+        std::cout << "shop button texture couldnt load" << std::endl;
+    };
+    Button shop_button(&shop_button_tex,200,100);
+
+	//credits button
+	Texture credits_button_tex;
+	if (!credits_button_tex.loadFromFile("art/CreditsButton.png")) {
+		 std::cout << "creidts button texture couldnt load" << std::endl;
+	}
+	Button credits_button(&credits_button_tex,200,400);
+
+	switch (game.mainMenu(&play_button, &shop_button, &credits_button)) {
+
 		case 1:
 			//Main game loop
 			while (game.getCurGameState() != Game::GameState::not_running)
@@ -32,8 +48,18 @@ int main()
 
 				while ((float)clock.getElapsedTime().asMilliseconds() < nextFrameStart);
 			}
-
 			break;
+
+		case 2:
+			//shop code here
+			break;
+
+		case 3:
+			//credits code here
+			std::cout << "User chose credits" << std::endl;
+			break;
+
+
 	}
 
 	//Cleans game after it has stopped running
