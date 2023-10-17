@@ -12,17 +12,17 @@ Dialogue::Dialogue() {
     rectangle.setFillColor(sf::Color::Blue);
     rectangle.setOutlineColor(sf::Color::Yellow);
     rectangle.setOutlineThickness(4.0f);
-    rectangle.setPosition(sf::Vector2f(125, 50));
 
     //std::cout << cur_line << std::endl;
 
     text.setCharacterSize(16); // in pixels, not points!
     text.setFillColor(sf::Color::White);
-
-    text.setPosition(sf::Vector2f(135, 110));    
+ 
 }
 
-void Dialogue::startDialogue(std::string name){
+void Dialogue::startDialogue(std::string name, sf::Vector2f screen_top_left){
+    rectangle.setPosition(sf::Vector2f(125, 50) + screen_top_left);
+    text.setPosition(sf::Vector2f(135, 110) + screen_top_left);   
 
     std::string filename = "files/dialogue.txt"; // Set the filename
     text.setFont(font); 

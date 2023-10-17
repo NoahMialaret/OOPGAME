@@ -84,7 +84,8 @@ private:
 	bool is_s_pressed = false;
 	bool is_space_pressed = false;
 	bool is_escape_pressed = false;
-	bool is_mouse_pressed = false;
+	bool is_left_mouse_pressed = false;
+	bool is_right_mouse_pressed = false;
 
 	float game_scale = 4.0f;			// The scale which the game is rendered as
 	float sprite_dimensions = 8.0f; 	// Assuming square sprites, could be changed to a vector for rectangular sprites

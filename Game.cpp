@@ -71,7 +71,6 @@ Game::Game(const char* title, sf::Clock* clock)
 
 	main_ui_list.push_back("Move");
 	main_ui_list.push_back("Weapon");
-	main_ui_list.push_back("Item");
 	main_ui_list.push_back("View Level");
 	main_ui_list.push_back("End Turn");
 }
@@ -332,7 +331,13 @@ void Game::handleEvents() {
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
 						if (!mouse_hold) {
-							is_mouse_pressed = true;
+							is_left_mouse_pressed = true;
+							mouse_hold = true;
+						}
+						break;
+					case sf::Mouse::Right:
+						if (!mouse_hold) {
+							is_right_mouse_pressed = true;
 							mouse_hold = true;
 						}
 						break;
@@ -342,6 +347,7 @@ void Game::handleEvents() {
 			case sf::Event::MouseButtonReleased:
 				switch (event.mouseButton.button) {
 					case sf::Mouse::Left:
+					case sf::Mouse::Right:
 						mouse_hold = false;
 						break;
 				}
@@ -431,12 +437,12 @@ void Game::update() {
 
 	if (dialogue_active) {
 		mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
-		if (is_mouse_pressed) {
+		if (is_left_mouse_pressed) {
 			if (dialogue.readLine()) {
 				dialogue_active = false;
 			}
 		}
-		is_mouse_pressed = false;
+		is_left_mouse_pressed = false;
 		return;
 	}
 
@@ -542,7 +548,8 @@ void Game::update() {
 			break;
 	}
 
-	is_mouse_pressed = false;
+	is_left_mouse_pressed = false;
+	is_right_mouse_pressed = false;
 }
 
 void Game::render() {
@@ -839,6 +846,8 @@ void Game::NPCChallengeCollision() {
 
 	if(player->getHitbox().intersects(npc->getHitbox())) {
 		std::cout << "You reached the end of the challenge! Here's " << counter.GetNumber() << " coins!" << std::endl;
+		dialogue.startDialogue("Victory", main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 		player->addCoins(counter.GetNumber());
 		player->setControl(false);
 		loadNewLevel();
@@ -947,13 +956,18 @@ void Game::updateActionMenu() {
 	if (ui.isListEmpty() && player->isStill()) {
 		sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
 		ui.makeList(main_ui_list, list_position);
-		is_mouse_pressed = false;
+		is_left_mouse_pressed = false;
 		return;
 	}
 
 	int list_index = ui.update(mouse_sprite.getPosition());
 
-	if (!is_mouse_pressed) {
+	if (is_right_mouse_pressed && list_index != -1) {
+		dialogue.startDialogue(main_ui_list[list_index], main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
+	}
+
+	if (!is_left_mouse_pressed) {
 		return;
 	}
 
@@ -989,17 +1003,13 @@ void Game::updateActionMenu() {
 		break;
 	}
 
-	case 2: // Items
-		std::cout << "showing items..." << std::endl;
-		break;
-
-	case 3: // View Level
+	case 2: // View Level
 		std::cout << "Entering level viewer..." << std::endl;
 		prev_game_state = cur_game_state;
 		cur_game_state = GameState::level_viewer;
 		break;
 
-	case 4: // End Turn
+	case 3: // End Turn
 		std::cout << "Ending turn..." << std::endl;
 		cur_game_state = GameState::enemy_turn;
 		next_enemy_attack_start = clock->getElapsedTime().asMilliseconds();
@@ -1025,12 +1035,17 @@ void Game::updateWeaponsList() {
 	if (is_escape_pressed) {
 		ui.resetList();
 		cur_game_state = GameState::action_menu;
+		return;
 	}
 	int list_index = ui.update(mouse_sprite.getPosition());
 
-	if (is_mouse_pressed && list_index != -1) {
+	if (is_left_mouse_pressed && list_index != -1) {
 		cur_weapon = player->getWeapon(list_index);
 		cur_game_state = GameState::attacking;
+	}
+	else if (is_right_mouse_pressed && list_index != -1) {
+		dialogue.startDialogue(player->getWeapon(list_index)->getName(), main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 	}
 }
 
@@ -1049,7 +1064,7 @@ void Game::updateAttack() {
 	}
 	else if (!cur_weapon->isAttacking()) {
 		cur_weapon->updateWeapon(mouse_sprite.getPosition());
-		if (is_mouse_pressed) {
+		if (is_left_mouse_pressed) {
 			cur_weapon->commenceAttack();
 		}
 	}
@@ -1121,7 +1136,7 @@ void Game::updateEnemyTurn()
 
 void Game::updateRoomPicker() {
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
-	if (!is_mouse_pressed) {
+	if (!is_left_mouse_pressed) {
 		return;
 	}
 
@@ -1132,6 +1147,8 @@ void Game::updateRoomPicker() {
 		npc = new NPC("art/NPC.png", 4.0f, sf::Vector2f(600.0f, 400.0f), "Shopkeeper");
 		player->setPosition(sf::Vector2f(200.0f, 400.0f));
 		ui.resetList();
+		dialogue.startDialogue("Shopkeeper", main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 	}
 
 	else if (challenge_button->checkClicked(sf::Mouse::getPosition(window))) {
@@ -1139,10 +1156,14 @@ void Game::updateRoomPicker() {
 		cur_game_state = GameState::challenge_wait;
 		loadChallenge();
 		ui.resetList();
+		dialogue.startDialogue("Challenge", main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 	}
 
 	else if (roulette_button->checkClicked(sf::Mouse::getPosition(window))) {
 		std::cout << "Roulette button pressed! (Not implemented)" << std::endl;
+		dialogue.startDialogue("Roulette", main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 	}
 }
 
@@ -1151,9 +1172,9 @@ void Game::updateShop()
     if (ui.isListEmpty() && player->isStill()) {
 		std::cout << "starting shop" << std::endl;
 		sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
-		std::vector<std::string> shop_list = {"Exit shop", "Arrow - 5 Coins"};
+		std::vector<std::string> shop_list = {"Exit shop"};
 		ui.makeList(shop_list, list_position);
-		is_mouse_pressed = false;
+		is_left_mouse_pressed = false;
 		shop = new Shop(rng, player, player->getArrows(), game_scale);
 		return;
 	}
@@ -1162,11 +1183,11 @@ void Game::updateShop()
 		return;
 	}
 
-	shop->update(mouse_sprite.getPosition(), is_mouse_pressed);
+	shop->update(mouse_sprite.getPosition(), &dialogue, &dialogue_active, is_left_mouse_pressed, is_right_mouse_pressed);
 
 	int list_index = ui.update(mouse_sprite.getPosition());
 
-	if (!is_mouse_pressed) {
+	if (!is_left_mouse_pressed) {
 		return;
 	}
 
@@ -1186,19 +1207,6 @@ void Game::updateShop()
 		delete shop;
 		shop = nullptr;
 		break;
-
-	case 1: // Buy arrow
-		std::cout << "Buying an arrow..." << std::endl;
-		if(player->addCoins(-5)) {
-			if (!player->addArrows(1)) {
-				std::cout << "You have the max amount of arrows (10), giving coins back." << std::endl;
-				player->addCoins(5);
-			}
-		}
-		else {
-			std::cout << "Not enough coins for arrows, need at least 5 coins!" << std::endl;
-		}
-		break;
 	
 	default:
 		break;
@@ -1210,13 +1218,13 @@ void Game::updateChallengeWait() {
 		sf::Vector2f list_position = sf::Vector2f(window.getView().getCenter().x - window.getSize().x / 2, window.getView().getCenter().y + window.getSize().y / 2);
 		std::vector<std::string> challenge_list = {"GO!", "View Level", "Exit"};
 		ui.makeList(challenge_list, list_position);
-		is_mouse_pressed = false;
+		is_left_mouse_pressed = false;
 		return;
 	}
 
 	int list_index = ui.update(mouse_sprite.getPosition());
 
-	if (!is_mouse_pressed) {
+	if (!is_left_mouse_pressed) {
 		return;
 	}
 
@@ -1255,6 +1263,8 @@ void Game::updateChallengeWait() {
 void Game::updateChallengeMode() {
 	if (counter.update(clock)) {
 		std::cout << "You ran out of time! Better luck next time." << std::endl;
+		dialogue.startDialogue("Fail", main_view.getCenter() - sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+		dialogue_active = true;
 		player->setControl(false);
 		loadNewLevel();
 		cur_game_state = GameState::action_menu;
@@ -1301,7 +1311,7 @@ void Game::updateLevelViewer() {
 void Game::mainMenu() {
 	
 	mouse_sprite.setPosition(window.mapPixelToCoords(mouse.getPosition(window)));
-	if (!is_mouse_pressed) {
+	if (!is_left_mouse_pressed) {
 		return;
 	}
 
@@ -1322,7 +1332,7 @@ void Game::mainMenu() {
 
 	if (credits_button->checkClicked(sf::Mouse::getPosition(window))) {
 		std::cout << "Showing credits!" << std::endl;
-		dialogue.startDialogue("credits");
+		dialogue.startDialogue("Credits", sf::Vector2f(0.0f, 0.0f));
 		dialogue_active = true;
 	}
 

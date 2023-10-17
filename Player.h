@@ -21,7 +21,7 @@ protected:
     int arrows = 5;
     int max_arrows = 10;
 
-    int coins = 0;
+    int coins = 100;
 
     bool is_attack_active = false;
 
@@ -57,6 +57,7 @@ public:
     bool addCoins(int amount);
     int* getCoins();
     bool hasWeapon(std::string weapon_name);
+    bool heal();
 
     void setCoins(int amount);
     void setHealth(int amount);
